@@ -5,14 +5,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/agent-auth/agent-auth-api/logging"
 	"github.com/agent-auth/agent-auth-api/web/interfaces/v1/healthinterface"
 
-	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
+	"go.uber.org/zap"
 )
 
 var (
@@ -23,15 +22,15 @@ var (
 
 // MongoStore ...
 type mongoStore struct {
-	logger logging.Logger
-	txID   string
+	logger *zap.Logger
 }
 
 // NewMongoStore returns new instance of datastore
 func NewMongoStore() MongoStore {
+	logger, _ := zap.NewProduction()
+
 	return &mongoStore{
-		logger: logging.NewLogger(),
-		txID:   uuid.New().String(),
+		logger: logger,
 	}
 }
 
@@ -56,7 +55,9 @@ func (s *mongoStore) Database() *mongo.Database {
 func (s *mongoStore) initialize() (a *mongo.Database, b *mongo.Client) {
 	client, err := mongo.NewClient(options.Client().ApplyURI(viper.GetString("db.host")))
 	if err != nil {
-		s.logger.Fatal(s.txID, DBConnectionFailed).Fatalf("Failed to connect to database with error: %v", err)
+		s.logger.Fatal("Failed to connect to database",
+			zap.Error(err),
+		)
 	}
 
 	ctx, cancel := context.WithTimeout(
@@ -66,12 +67,16 @@ func (s *mongoStore) initialize() (a *mongo.Database, b *mongo.Client) {
 	defer cancel()
 	err = client.Connect(ctx)
 	if err != nil {
-		s.logger.Fatal(s.txID, DBConnectionFailed).Fatalf("Failed to connect to database with error: %v", err)
+		s.logger.Fatal("Failed to connect to database",
+			zap.Error(err),
+		)
 	}
 
 	database := viper.GetString("db.database")
 	db := client.Database(database)
-	s.logger.Info(s.txID).Infof("Successfully connected to database %s", database)
+	s.logger.Info("Successfully connected to database",
+		zap.String("database", database),
+	)
 
 	return db, client
 }

@@ -1,6 +1,7 @@
 package health
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"runtime"
@@ -8,7 +9,6 @@ import (
 
 	"github.com/agent-auth/agent-auth-api/database/connection"
 
-	"github.com/agent-auth/agent-auth-api/logging"
 	"github.com/agent-auth/agent-auth-api/web/interfaces/v1/healthinterface"
 	_ "github.com/agent-auth/agent-auth-api/web/renderers" // swag
 	"github.com/go-chi/render"
@@ -16,15 +16,13 @@ import (
 )
 
 type health struct {
-	logger logging.Logger
-	db     connection.MongoStore
+	db connection.MongoStore
 }
 
 // NewHealth returns health impl
 func NewHealth() Health {
 	return &health{
-		logger: logging.NewLogger(),
-		db:     connection.NewMongoStore(),
+		db: connection.NewMongoStore(),
 	}
 }
 
@@ -41,7 +39,6 @@ func NewHealth() Health {
 // GetHealth returns heath of service, can be extended if
 // service is running on multile instances
 func (h *health) GetHealth(w http.ResponseWriter, r *http.Request) {
-	txID := r.Header["transaction_id"][0]
 
 	healthStatus := healthinterface.Health{}
 	healthStatus.ServiceName = viper.GetString("service_name")
@@ -71,7 +68,7 @@ func (h *health) GetHealth(w http.ResponseWriter, r *http.Request) {
 
 	exIP, err := externalIP()
 	if err != nil {
-		h.logger.Error(txID, FailedToObtainOutboundIP).Error("Failed to obtain inbound ip address with error %v", err)
+		fmt.Errorf("Failed to obtain inbound ip address with error %v", err)
 		server.ConnectionStatus = healthinterface.ConnectionDisconnected
 	}
 	server.Address = exIP

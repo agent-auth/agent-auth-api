@@ -1,40 +1,5 @@
-basePath: /recruiter-api/v1
+basePath: /
 definitions:
-  authinterface.AuthenticateReqInterface:
-    properties:
-      token:
-        type: string
-    type: object
-  authinterface.AuthenticateResInterface:
-    properties:
-      accessToken:
-        type: string
-      refreshToken:
-        type: string
-    type: object
-  authinterface.Company:
-    properties:
-      companyID:
-        type: string
-      companyName:
-        type: string
-    type: object
-  authinterface.LoginReqInterface:
-    properties:
-      email:
-        type: string
-    type: object
-  authinterface.SignUpReqInterface:
-    properties:
-      company:
-        $ref: '#/definitions/authinterface.Company'
-      designation:
-        type: string
-      email:
-        type: string
-      firstName:
-        type: string
-    type: object
   errorinterface.ErrorResponse:
     properties:
       code:
@@ -100,146 +65,239 @@ definitions:
           type: string
         type: array
     type: object
-  jobsinterface.JobRequest:
+  keycloak.PolicyRepresentation:
     properties:
-      category:
+      decisionStrategy:
         type: string
-      createdTimestampUTC:
+      description:
         type: string
-      deleted:
-        type: boolean
-      employmentType:
-        items:
-          type: string
-        type: array
-      function:
-        type: string
-      goodToHaveSkills:
-        items:
-          type: string
-        type: array
       id:
         type: string
-      isRemote:
-        type: boolean
-      isVerified:
-        type: boolean
-      locations:
-        items:
-          type: string
-        type: array
-      maxExperience:
-        type: integer
-      minExperience:
-        type: integer
-      mustHaveSkills:
-        items:
-          type: string
-        type: array
-      organizationID:
+      logic:
         type: string
-      recruiterID:
+      name:
         type: string
-      remoteTimezone:
+      type:
         type: string
-      sideNote:
-        type: string
-      summary:
-        additionalProperties: true
-        type: object
-      title:
-        type: string
-      updatedTimestampUTC:
-        type: string
-      visaSponsorShip:
-        type: boolean
     type: object
-  jobsinterface.JobResponse:
+  keycloak.ResourceRepresentation:
     properties:
-      category:
+      _id:
         type: string
-      createdTimestampUTC:
+      attributes:
+        additionalProperties:
+          items:
+            type: string
+          type: array
+        type: object
+      displayName:
         type: string
-      deleted:
-        type: boolean
-      employmentType:
+      icon_uri:
+        type: string
+      name:
+        type: string
+      owner:
+        type: string
+      scopes:
+        items:
+          $ref: '#/definitions/keycloak.ScopeRepresentation'
+        type: array
+      type:
+        type: string
+      uris:
         items:
           type: string
         type: array
-      function:
+    type: object
+  keycloak.ScopeRepresentation:
+    properties:
+      displayName:
         type: string
-      goodToHaveSkills:
-        items:
-          type: string
-        type: array
+      iconUri:
+        type: string
       id:
         type: string
-      isRemote:
-        type: boolean
-      isVerified:
-        type: boolean
-      locations:
+      name:
+        type: string
+      policies:
         items:
-          type: string
+          $ref: '#/definitions/keycloak.PolicyRepresentation'
         type: array
-      maxExperience:
-        type: integer
-      minExperience:
-        type: integer
-      mustHaveSkills:
+      resources:
         items:
-          type: string
+          $ref: '#/definitions/keycloak.ResourceRepresentation'
         type: array
-      organizationID:
-        type: string
-      recruiterID:
-        type: string
-      remoteTimezone:
-        type: string
-      sideNote:
-        type: string
-      summary:
-        additionalProperties: true
-        type: object
-      title:
-        type: string
-      updatedTimestampUTC:
-        type: string
-      visaSponsorShip:
-        type: boolean
     type: object
-host: localhost:8001
+  resourceservice.ResourceRequest:
+    properties:
+      _id:
+        type: string
+      attributes:
+        additionalProperties:
+          items:
+            type: string
+          type: array
+        type: object
+      displayName:
+        type: string
+      icon_uri:
+        type: string
+      name:
+        type: string
+      owner:
+        type: string
+      scopes:
+        items:
+          $ref: '#/definitions/keycloak.ScopeRepresentation'
+        type: array
+      type:
+        type: string
+      uris:
+        items:
+          type: string
+        type: array
+    type: object
+  resourceservice.ResourceResponse:
+    properties:
+      _id:
+        type: string
+      attributes:
+        additionalProperties:
+          items:
+            type: string
+          type: array
+        type: object
+      displayName:
+        type: string
+      icon_uri:
+        type: string
+      name:
+        type: string
+      owner:
+        type: string
+      scopes:
+        items:
+          $ref: '#/definitions/keycloak.ScopeRepresentation'
+        type: array
+      type:
+        type: string
+      uris:
+        items:
+          type: string
+        type: array
+    type: object
+host: localhost:8002
 info:
-  contact:
-    email: hello@xyz.ai
-    name: API Support
-    url: http://xyz.ai
-  description: Recruiter API Documentation
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  title: Recruiter API Documentation
-  version: "2.0"
+  contact: {}
 paths:
-  /authenticate:
-    post:
+  /{workspace_id}/{project_id}/oauth/{resource_id}:
+    delete:
       consumes:
       - application/json
-      description: It allows to objten JWT and Refresh token
+      description: Deletes a Keycloak resource
       parameters:
-      - description: authenticate
-        in: body
-        name: '*'
+      - description: Workspace ID
+        in: path
+        name: workspace_id
         required: true
-        schema:
-          $ref: '#/definitions/authinterface.AuthenticateReqInterface'
+        type: string
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      - description: Resource ID
+        in: path
+        name: resource_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      summary: Delete a resource
+      tags:
+      - resources
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a Keycloak resource by ID
+      parameters:
+      - description: Workspace ID
+        in: path
+        name: workspace_id
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      - description: Resource ID
+        in: path
+        name: resource_id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/authinterface.AuthenticateResInterface'
+            $ref: '#/definitions/resourceservice.ResourceResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      summary: Get a resource
+      tags:
+      - resources
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing Keycloak resource
+      parameters:
+      - description: Workspace ID
+        in: path
+        name: workspace_id
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      - description: Resource ID
+        in: path
+        name: resource_id
+        required: true
+        type: string
+      - description: Resource Details
+        in: body
+        name: resource
+        required: true
+        schema:
+          $ref: '#/definitions/resourceservice.ResourceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/resourceservice.ResourceResponse'
         "400":
           description: Bad Request
           schema:
@@ -252,9 +310,95 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/errorinterface.ErrorResponse'
-      summary: Authenticate with Token
+      summary: Update a resource
       tags:
-      - authentication
+      - resources
+  /{workspace_id}/{project_id}/oauth/resources:
+    get:
+      consumes:
+      - application/json
+      description: Lists all Keycloak resources with optional filtering
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by type
+        in: query
+        name: type
+        type: string
+      - description: Filter by URI
+        in: query
+        name: uri
+        type: string
+      - description: Filter by owner
+        in: query
+        name: owner
+        type: string
+      - description: Filter by scope
+        in: query
+        name: scope
+        type: string
+      - description: Workspace ID
+        in: path
+        name: workspace_id
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/resourceservice.ResourceResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      summary: List resources
+      tags:
+      - resources
+    post:
+      consumes:
+      - application/json
+      description: Creates a new Keycloak resource
+      parameters:
+      - description: Bearer JWT
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Resource Details
+        in: body
+        name: resource
+        required: true
+        schema:
+          $ref: '#/definitions/resourceservice.ResourceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/resourceservice.ResourceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      summary: Create a new resource
+      tags:
+      - resources
   /health:
     get:
       consumes:
@@ -282,278 +426,6 @@ paths:
       summary: Get health of the service
       tags:
       - health
-  /jobs:
-    post:
-      consumes:
-      - application/json
-      description: It allows to Post a new Job
-      parameters:
-      - description: BEARER JWT
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Job Details
-        in: body
-        name: '*'
-        required: true
-        schema:
-          $ref: '#/definitions/jobsinterface.JobRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/jobsinterface.JobResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-      summary: Post a new Job
-      tags:
-      - jobs
-  /jobs/jobID:
-    delete:
-      consumes:
-      - application/json
-      description: It allows to delete a Job by ID
-      parameters:
-      - description: Job ID
-        in: path
-        name: jobID
-        required: true
-        type: string
-      - description: BEARER JWT
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-      summary: Delete a Job
-      tags:
-      - jobs
-    get:
-      consumes:
-      - application/json
-      description: It allows to reterive a Job by ID
-      parameters:
-      - description: Job ID
-        in: path
-        name: jobID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/jobsinterface.JobResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-      summary: Get a Job
-      tags:
-      - jobs
-    put:
-      consumes:
-      - application/json
-      description: It allows to update a Job
-      parameters:
-      - description: Job Details
-        in: body
-        name: '*'
-        required: true
-        schema:
-          $ref: '#/definitions/jobsinterface.JobRequest'
-      - description: BEARER JWT
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Job ID
-        in: path
-        name: jobID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/jobsinterface.JobResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-      summary: Update a  Job
-      tags:
-      - jobs
-  /login:
-    post:
-      consumes:
-      - application/json
-      description: It allows to login to account with email address registered
-      parameters:
-      - description: login with email
-        in: body
-        name: '*'
-        required: true
-        schema:
-          $ref: '#/definitions/authinterface.LoginReqInterface'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-      summary: Login to account with email
-      tags:
-      - authentication
-  /logout:
-    post:
-      consumes:
-      - application/json
-      description: It allows to logout users from account with JWT
-      parameters:
-      - description: BEARER JWT
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-      summary: Logout
-      tags:
-      - authentication
-  /signup:
-    post:
-      consumes:
-      - application/json
-      description: It allows to sign up with email address and personal details
-      parameters:
-      - description: signup with email
-        in: body
-        name: '*'
-        required: true
-        schema:
-          $ref: '#/definitions/authinterface.SignUpReqInterface'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-      summary: Sign up with email
-      tags:
-      - authentication
-  /validate:
-    post:
-      consumes:
-      - application/json
-      description: It allows to logout users from account with JWT
-      parameters:
-      - description: BEARER JWT
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: ""
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-      summary: Logout
-      tags:
-      - authentication
 securityDefinitions:
   ApiKeyAuth:
     in: header

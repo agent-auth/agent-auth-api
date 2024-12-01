@@ -1,6 +1,6 @@
 {
-    "service_name": "Recruiter API",
-    "service_provider": "Job Box Tech",
+    "service_name": "",
+    "service_provider": "",
     "service_version": "v1.0.0",
     "service_started_timestamp_utc": "0001-01-01T00:00:00Z",
 
@@ -12,9 +12,10 @@
 
     "host": {
         "address": "127.0.0.1",
-        "port": 8001,
+        "port": 8002,
         "enable_cors": true
     },
+
     "web": {
         "api_version_v1": "/v1",
         "url_prefix": "/recruiter-api",
@@ -35,25 +36,5 @@
         "organizations_collection": "organizations",
         "jobs_collection": "jobs",
         "access_tokens_collection": "access_tokens"
-    },
-    "jwt": {
-        "auth_jwt_expiry" : "24h",
-        "auth_jwt_refresh_expiry":"1h",
-        "auth_jwt_secret": "secret", 
-        "auth_login_token_expiry" : "24h"
-    },
-    "db_debug":false,
-    "logging": {
-        "text_logging": false,
-        "log_level": "DEBUG",
-        "log_filename": "platform-recruiter-api.log"
-    },
-    "email": {
-		"smtp_host": "smtp.gmail.com",
-		"smtp_port": 465,
-		"smtp_user": "abc@gmail.ai",
-        "smtp_password": "XXXXXXXXXXXXX",
-        "from_name": "XYZ Tech",
-        "from_address": "abc@gmail.ai"
     }
 }
