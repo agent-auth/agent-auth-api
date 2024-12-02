@@ -47,6 +47,416 @@
                 }
             }
         },
+        "/workspaces": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Lists all workspaces with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workspaces"
+                ],
+                "summary": "List workspaces",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Number of records to skip",
+                        "name": "skip",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Number of records to return",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/workspace.WorkspacesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new workspace",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workspaces"
+                ],
+                "summary": "Create workspace",
+                "parameters": [
+                    {
+                        "description": "Workspace details",
+                        "name": "workspace",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/workspace.WorkspaceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/workspace.WorkspaceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workspaces/{workspace_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Gets a workspace by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workspaces"
+                ],
+                "summary": "Get workspace",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workspace ID",
+                        "name": "workspace_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/workspace.WorkspaceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates an existing workspace (owner only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workspaces"
+                ],
+                "summary": "Update workspace",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workspace ID",
+                        "name": "workspace_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated workspace details",
+                        "name": "workspace",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/workspace.WorkspaceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/workspace.WorkspaceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deletes a workspace (owner only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workspaces"
+                ],
+                "summary": "Delete workspace",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workspace ID",
+                        "name": "workspace_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workspaces/{workspace_id}/members": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Adds a new member to a workspace (owner only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workspaces"
+                ],
+                "summary": "Add member to workspace",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workspace ID",
+                        "name": "workspace_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Member ID to add",
+                        "name": "member",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/workspace.AddMemberRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/workspaces/{workspace_id}/members/{member_id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Removes a member from a workspace (owner only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "workspaces"
+                ],
+                "summary": "Remove member from workspace",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workspace ID",
+                        "name": "workspace_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Member ID",
+                        "name": "member_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/{workspace_id}/{project_id}/oauth/resources": {
             "get": {
                 "description": "Lists all Keycloak resources with optional filtering",
@@ -112,7 +522,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/resourceservice.ResourceResponse"
+                                "$ref": "#/definitions/oauth.ResourceResponse"
                             }
                         }
                     },
@@ -150,7 +560,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/resourceservice.ResourceRequest"
+                            "$ref": "#/definitions/oauth.ResourceRequest"
                         }
                     }
                 ],
@@ -158,7 +568,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/resourceservice.ResourceResponse"
+                            "$ref": "#/definitions/oauth.ResourceResponse"
                         }
                     },
                     "400": {
@@ -176,7 +586,7 @@
                 }
             }
         },
-        "/{workspace_id}/{project_id}/oauth/{resource_id}": {
+        "/{workspace_id}/{project_id}/oauth/resources/{resource_id}": {
             "get": {
                 "description": "Retrieves a Keycloak resource by ID",
                 "consumes": [
@@ -216,78 +626,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/resourceservice.ResourceResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/errorinterface.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/errorinterface.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "description": "Updates an existing Keycloak resource",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "resources"
-                ],
-                "summary": "Update a resource",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Workspace ID",
-                        "name": "workspace_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Project ID",
-                        "name": "project_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Resource ID",
-                        "name": "resource_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Resource Details",
-                        "name": "resource",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/resourceservice.ResourceRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/resourceservice.ResourceResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                            "$ref": "#/definitions/oauth.ResourceResponse"
                         }
                     },
                     "404": {
@@ -357,9 +696,153 @@
                     }
                 }
             }
+        },
+        "/{workspace_id}/{project_id}/oauth/{resource_id}": {
+            "put": {
+                "description": "Updates an existing Keycloak resource",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resources"
+                ],
+                "summary": "Update a resource",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workspace ID",
+                        "name": "workspace_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Resource ID",
+                        "name": "resource_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Resource Details",
+                        "name": "resource",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/oauth.ResourceRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/oauth.ResourceResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "dbmodels.Workspace": {
+            "type": "object",
+            "properties": {
+                "AllowEmailInvites": {
+                    "description": "Email domain settings",
+                    "type": "boolean"
+                },
+                "AllowJITProvisioning": {
+                    "description": "Just-in-time (JIT) provisioning",
+                    "type": "boolean"
+                },
+                "AllowSecondaryAuth": {
+                    "description": "Flag for secondary authentication method allowance",
+                    "type": "boolean"
+                },
+                "AllowedDomains": {
+                    "description": "List of allowed email domains for invites",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "CreatedTimestampUTC": {
+                    "type": "string"
+                },
+                "Description": {
+                    "type": "string"
+                },
+                "InviteDomainRestriction": {
+                    "description": "Restrict invites based on email domain",
+                    "type": "boolean"
+                },
+                "Members": {
+                    "description": "List of members belonging to the workspace",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "Name": {
+                    "description": "Workspace details",
+                    "type": "string"
+                },
+                "OwnerID": {
+                    "description": "Workspace owner",
+                    "type": "string"
+                },
+                "PrimaryAuthEnabled": {
+                    "description": "Authentication settings",
+                    "type": "boolean"
+                },
+                "RequireMFA": {
+                    "description": "Flag for multi-factor authentication requirement",
+                    "type": "boolean"
+                },
+                "SecondaryAuthEnabled": {
+                    "description": "Flag for secondary authentication",
+                    "type": "boolean"
+                },
+                "Slug": {
+                    "description": "Slug for URL or unique identification",
+                    "type": "string"
+                },
+                "UpdatedTimestampUTC": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "errorinterface.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -506,7 +989,10 @@
                     "type": "string"
                 },
                 "owner": {
-                    "type": "string"
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 },
                 "scopes": {
                     "type": "array",
@@ -554,7 +1040,7 @@
                 }
             }
         },
-        "resourceservice.ResourceRequest": {
+        "oauth.ResourceRequest": {
             "type": "object",
             "properties": {
                 "_id": {
@@ -579,7 +1065,10 @@
                     "type": "string"
                 },
                 "owner": {
-                    "type": "string"
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 },
                 "scopes": {
                     "type": "array",
@@ -598,7 +1087,7 @@
                 }
             }
         },
-        "resourceservice.ResourceResponse": {
+        "oauth.ResourceResponse": {
             "type": "object",
             "properties": {
                 "_id": {
@@ -623,7 +1112,10 @@
                     "type": "string"
                 },
                 "owner": {
-                    "type": "string"
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 },
                 "scopes": {
                     "type": "array",
@@ -638,6 +1130,170 @@
                     "type": "array",
                     "items": {
                         "type": "string"
+                    }
+                }
+            }
+        },
+        "workspace.AddMemberRequest": {
+            "type": "object",
+            "properties": {
+                "memberID": {
+                    "type": "string"
+                }
+            }
+        },
+        "workspace.WorkspaceRequest": {
+            "description": "Workspace request model",
+            "type": "object",
+            "properties": {
+                "AllowEmailInvites": {
+                    "description": "Email domain settings",
+                    "type": "boolean"
+                },
+                "AllowJITProvisioning": {
+                    "description": "Just-in-time (JIT) provisioning",
+                    "type": "boolean"
+                },
+                "AllowSecondaryAuth": {
+                    "description": "Flag for secondary authentication method allowance",
+                    "type": "boolean"
+                },
+                "AllowedDomains": {
+                    "description": "List of allowed email domains for invites",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "CreatedTimestampUTC": {
+                    "type": "string"
+                },
+                "Description": {
+                    "type": "string"
+                },
+                "InviteDomainRestriction": {
+                    "description": "Restrict invites based on email domain",
+                    "type": "boolean"
+                },
+                "Members": {
+                    "description": "List of members belonging to the workspace",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "Name": {
+                    "description": "Workspace details",
+                    "type": "string"
+                },
+                "OwnerID": {
+                    "description": "Workspace owner",
+                    "type": "string"
+                },
+                "PrimaryAuthEnabled": {
+                    "description": "Authentication settings",
+                    "type": "boolean"
+                },
+                "RequireMFA": {
+                    "description": "Flag for multi-factor authentication requirement",
+                    "type": "boolean"
+                },
+                "SecondaryAuthEnabled": {
+                    "description": "Flag for secondary authentication",
+                    "type": "boolean"
+                },
+                "Slug": {
+                    "description": "Slug for URL or unique identification",
+                    "type": "string"
+                },
+                "UpdatedTimestampUTC": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "workspace.WorkspaceResponse": {
+            "description": "Workspace response model",
+            "type": "object",
+            "properties": {
+                "AllowEmailInvites": {
+                    "description": "Email domain settings",
+                    "type": "boolean"
+                },
+                "AllowJITProvisioning": {
+                    "description": "Just-in-time (JIT) provisioning",
+                    "type": "boolean"
+                },
+                "AllowSecondaryAuth": {
+                    "description": "Flag for secondary authentication method allowance",
+                    "type": "boolean"
+                },
+                "AllowedDomains": {
+                    "description": "List of allowed email domains for invites",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "CreatedTimestampUTC": {
+                    "type": "string"
+                },
+                "Description": {
+                    "type": "string"
+                },
+                "InviteDomainRestriction": {
+                    "description": "Restrict invites based on email domain",
+                    "type": "boolean"
+                },
+                "Members": {
+                    "description": "List of members belonging to the workspace",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "Name": {
+                    "description": "Workspace details",
+                    "type": "string"
+                },
+                "OwnerID": {
+                    "description": "Workspace owner",
+                    "type": "string"
+                },
+                "PrimaryAuthEnabled": {
+                    "description": "Authentication settings",
+                    "type": "boolean"
+                },
+                "RequireMFA": {
+                    "description": "Flag for multi-factor authentication requirement",
+                    "type": "boolean"
+                },
+                "SecondaryAuthEnabled": {
+                    "description": "Flag for secondary authentication",
+                    "type": "boolean"
+                },
+                "Slug": {
+                    "description": "Slug for URL or unique identification",
+                    "type": "string"
+                },
+                "UpdatedTimestampUTC": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "workspace.WorkspacesResponse": {
+            "description": "Workspaces list response model",
+            "type": "object",
+            "properties": {
+                "workspaces": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dbmodels.Workspace"
                     }
                 }
             }

@@ -1,4 +1,4 @@
-package resourceservice
+package oauth
 
 import (
 	"errors"

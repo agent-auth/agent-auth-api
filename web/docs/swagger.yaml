@@ -1,5 +1,56 @@
 basePath: /
 definitions:
+  dbmodels.Workspace:
+    properties:
+      AllowEmailInvites:
+        description: Email domain settings
+        type: boolean
+      AllowJITProvisioning:
+        description: Just-in-time (JIT) provisioning
+        type: boolean
+      AllowSecondaryAuth:
+        description: Flag for secondary authentication method allowance
+        type: boolean
+      AllowedDomains:
+        description: List of allowed email domains for invites
+        items:
+          type: string
+        type: array
+      CreatedTimestampUTC:
+        type: string
+      Description:
+        type: string
+      InviteDomainRestriction:
+        description: Restrict invites based on email domain
+        type: boolean
+      Members:
+        description: List of members belonging to the workspace
+        items:
+          type: string
+        type: array
+      Name:
+        description: Workspace details
+        type: string
+      OwnerID:
+        description: Workspace owner
+        type: string
+      PrimaryAuthEnabled:
+        description: Authentication settings
+        type: boolean
+      RequireMFA:
+        description: Flag for multi-factor authentication requirement
+        type: boolean
+      SecondaryAuthEnabled:
+        description: Flag for secondary authentication
+        type: boolean
+      Slug:
+        description: Slug for URL or unique identification
+        type: string
+      UpdatedTimestampUTC:
+        type: string
+      id:
+        type: string
+    type: object
   errorinterface.ErrorResponse:
     properties:
       code:
@@ -97,7 +148,9 @@ definitions:
       name:
         type: string
       owner:
-        type: string
+        additionalProperties:
+          type: string
+        type: object
       scopes:
         items:
           $ref: '#/definitions/keycloak.ScopeRepresentation'
@@ -128,7 +181,7 @@ definitions:
           $ref: '#/definitions/keycloak.ResourceRepresentation'
         type: array
     type: object
-  resourceservice.ResourceRequest:
+  oauth.ResourceRequest:
     properties:
       _id:
         type: string
@@ -145,7 +198,9 @@ definitions:
       name:
         type: string
       owner:
-        type: string
+        additionalProperties:
+          type: string
+        type: object
       scopes:
         items:
           $ref: '#/definitions/keycloak.ScopeRepresentation'
@@ -157,7 +212,7 @@ definitions:
           type: string
         type: array
     type: object
-  resourceservice.ResourceResponse:
+  oauth.ResourceResponse:
     properties:
       _id:
         type: string
@@ -174,7 +229,9 @@ definitions:
       name:
         type: string
       owner:
-        type: string
+        additionalProperties:
+          type: string
+        type: object
       scopes:
         items:
           $ref: '#/definitions/keycloak.ScopeRepresentation'
@@ -184,6 +241,123 @@ definitions:
       uris:
         items:
           type: string
+        type: array
+    type: object
+  workspace.AddMemberRequest:
+    properties:
+      memberID:
+        type: string
+    type: object
+  workspace.WorkspaceRequest:
+    description: Workspace request model
+    properties:
+      AllowEmailInvites:
+        description: Email domain settings
+        type: boolean
+      AllowJITProvisioning:
+        description: Just-in-time (JIT) provisioning
+        type: boolean
+      AllowSecondaryAuth:
+        description: Flag for secondary authentication method allowance
+        type: boolean
+      AllowedDomains:
+        description: List of allowed email domains for invites
+        items:
+          type: string
+        type: array
+      CreatedTimestampUTC:
+        type: string
+      Description:
+        type: string
+      InviteDomainRestriction:
+        description: Restrict invites based on email domain
+        type: boolean
+      Members:
+        description: List of members belonging to the workspace
+        items:
+          type: string
+        type: array
+      Name:
+        description: Workspace details
+        type: string
+      OwnerID:
+        description: Workspace owner
+        type: string
+      PrimaryAuthEnabled:
+        description: Authentication settings
+        type: boolean
+      RequireMFA:
+        description: Flag for multi-factor authentication requirement
+        type: boolean
+      SecondaryAuthEnabled:
+        description: Flag for secondary authentication
+        type: boolean
+      Slug:
+        description: Slug for URL or unique identification
+        type: string
+      UpdatedTimestampUTC:
+        type: string
+      id:
+        type: string
+    type: object
+  workspace.WorkspaceResponse:
+    description: Workspace response model
+    properties:
+      AllowEmailInvites:
+        description: Email domain settings
+        type: boolean
+      AllowJITProvisioning:
+        description: Just-in-time (JIT) provisioning
+        type: boolean
+      AllowSecondaryAuth:
+        description: Flag for secondary authentication method allowance
+        type: boolean
+      AllowedDomains:
+        description: List of allowed email domains for invites
+        items:
+          type: string
+        type: array
+      CreatedTimestampUTC:
+        type: string
+      Description:
+        type: string
+      InviteDomainRestriction:
+        description: Restrict invites based on email domain
+        type: boolean
+      Members:
+        description: List of members belonging to the workspace
+        items:
+          type: string
+        type: array
+      Name:
+        description: Workspace details
+        type: string
+      OwnerID:
+        description: Workspace owner
+        type: string
+      PrimaryAuthEnabled:
+        description: Authentication settings
+        type: boolean
+      RequireMFA:
+        description: Flag for multi-factor authentication requirement
+        type: boolean
+      SecondaryAuthEnabled:
+        description: Flag for secondary authentication
+        type: boolean
+      Slug:
+        description: Slug for URL or unique identification
+        type: string
+      UpdatedTimestampUTC:
+        type: string
+      id:
+        type: string
+    type: object
+  workspace.WorkspacesResponse:
+    description: Workspaces list response model
+    properties:
+      workspaces:
+        items:
+          $ref: '#/definitions/dbmodels.Workspace'
         type: array
     type: object
 host: localhost:8002
@@ -191,6 +365,141 @@ info:
   contact: {}
 paths:
   /{workspace_id}/{project_id}/oauth/{resource_id}:
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing Keycloak resource
+      parameters:
+      - description: Workspace ID
+        in: path
+        name: workspace_id
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      - description: Resource ID
+        in: path
+        name: resource_id
+        required: true
+        type: string
+      - description: Resource Details
+        in: body
+        name: resource
+        required: true
+        schema:
+          $ref: '#/definitions/oauth.ResourceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/oauth.ResourceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      summary: Update a resource
+      tags:
+      - resources
+  /{workspace_id}/{project_id}/oauth/resources:
+    get:
+      consumes:
+      - application/json
+      description: Lists all Keycloak resources with optional filtering
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by type
+        in: query
+        name: type
+        type: string
+      - description: Filter by URI
+        in: query
+        name: uri
+        type: string
+      - description: Filter by owner
+        in: query
+        name: owner
+        type: string
+      - description: Filter by scope
+        in: query
+        name: scope
+        type: string
+      - description: Workspace ID
+        in: path
+        name: workspace_id
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/oauth.ResourceResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      summary: List resources
+      tags:
+      - resources
+    post:
+      consumes:
+      - application/json
+      description: Creates a new Keycloak resource
+      parameters:
+      - description: Bearer JWT
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Resource Details
+        in: body
+        name: resource
+        required: true
+        schema:
+          $ref: '#/definitions/oauth.ResourceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/oauth.ResourceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      summary: Create a new resource
+      tags:
+      - resources
+  /{workspace_id}/{project_id}/oauth/resources/{resource_id}:
     delete:
       consumes:
       - application/json
@@ -253,7 +562,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/resourceservice.ResourceResponse'
+            $ref: '#/definitions/oauth.ResourceResponse'
         "404":
           description: Not Found
           schema:
@@ -263,140 +572,6 @@ paths:
           schema:
             $ref: '#/definitions/errorinterface.ErrorResponse'
       summary: Get a resource
-      tags:
-      - resources
-    put:
-      consumes:
-      - application/json
-      description: Updates an existing Keycloak resource
-      parameters:
-      - description: Workspace ID
-        in: path
-        name: workspace_id
-        required: true
-        type: string
-      - description: Project ID
-        in: path
-        name: project_id
-        required: true
-        type: string
-      - description: Resource ID
-        in: path
-        name: resource_id
-        required: true
-        type: string
-      - description: Resource Details
-        in: body
-        name: resource
-        required: true
-        schema:
-          $ref: '#/definitions/resourceservice.ResourceRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/resourceservice.ResourceResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-      summary: Update a resource
-      tags:
-      - resources
-  /{workspace_id}/{project_id}/oauth/resources:
-    get:
-      consumes:
-      - application/json
-      description: Lists all Keycloak resources with optional filtering
-      parameters:
-      - description: Filter by name
-        in: query
-        name: name
-        type: string
-      - description: Filter by type
-        in: query
-        name: type
-        type: string
-      - description: Filter by URI
-        in: query
-        name: uri
-        type: string
-      - description: Filter by owner
-        in: query
-        name: owner
-        type: string
-      - description: Filter by scope
-        in: query
-        name: scope
-        type: string
-      - description: Workspace ID
-        in: path
-        name: workspace_id
-        required: true
-        type: string
-      - description: Project ID
-        in: path
-        name: project_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/resourceservice.ResourceResponse'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-      summary: List resources
-      tags:
-      - resources
-    post:
-      consumes:
-      - application/json
-      description: Creates a new Keycloak resource
-      parameters:
-      - description: Bearer JWT
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: Resource Details
-        in: body
-        name: resource
-        required: true
-        schema:
-          $ref: '#/definitions/resourceservice.ResourceRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/resourceservice.ResourceResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
-      summary: Create a new resource
       tags:
       - resources
   /health:
@@ -426,6 +601,269 @@ paths:
       summary: Get health of the service
       tags:
       - health
+  /workspaces:
+    get:
+      consumes:
+      - application/json
+      description: Lists all workspaces with pagination
+      parameters:
+      - default: 0
+        description: Number of records to skip
+        in: query
+        name: skip
+        type: integer
+      - default: 10
+        description: Number of records to return
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/workspace.WorkspacesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List workspaces
+      tags:
+      - workspaces
+    post:
+      consumes:
+      - application/json
+      description: Creates a new workspace
+      parameters:
+      - description: Workspace details
+        in: body
+        name: workspace
+        required: true
+        schema:
+          $ref: '#/definitions/workspace.WorkspaceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/workspace.WorkspaceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create workspace
+      tags:
+      - workspaces
+  /workspaces/{workspace_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a workspace (owner only)
+      parameters:
+      - description: Workspace ID
+        in: path
+        name: workspace_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete workspace
+      tags:
+      - workspaces
+    get:
+      consumes:
+      - application/json
+      description: Gets a workspace by ID
+      parameters:
+      - description: Workspace ID
+        in: path
+        name: workspace_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/workspace.WorkspaceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get workspace
+      tags:
+      - workspaces
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing workspace (owner only)
+      parameters:
+      - description: Workspace ID
+        in: path
+        name: workspace_id
+        required: true
+        type: string
+      - description: Updated workspace details
+        in: body
+        name: workspace
+        required: true
+        schema:
+          $ref: '#/definitions/workspace.WorkspaceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/workspace.WorkspaceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update workspace
+      tags:
+      - workspaces
+  /workspaces/{workspace_id}/members:
+    post:
+      consumes:
+      - application/json
+      description: Adds a new member to a workspace (owner only)
+      parameters:
+      - description: Workspace ID
+        in: path
+        name: workspace_id
+        required: true
+        type: string
+      - description: Member ID to add
+        in: body
+        name: member
+        required: true
+        schema:
+          $ref: '#/definitions/workspace.AddMemberRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add member to workspace
+      tags:
+      - workspaces
+  /workspaces/{workspace_id}/members/{member_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Removes a member from a workspace (owner only)
+      parameters:
+      - description: Workspace ID
+        in: path
+        name: workspace_id
+        required: true
+        type: string
+      - description: Member ID
+        in: path
+        name: member_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove member from workspace
+      tags:
+      - workspaces
 securityDefinitions:
   ApiKeyAuth:
     in: header

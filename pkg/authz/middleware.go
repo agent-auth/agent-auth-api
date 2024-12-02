@@ -33,7 +33,6 @@ func AuthMiddleware(provider *TokenProvider, audience, issuer string) func(http.
 			// Validate the token
 			claims, err := provider.ValidateToken(tokenString, audience, issuer)
 			if err != nil {
-				fmt.Println("Error validating token:", err)
 				http.Error(w, "Invalid token", http.StatusUnauthorized)
 				return
 			}
@@ -132,4 +131,19 @@ func RequireScopes(scopes ...string) func(http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 		})
 	}
+}
+
+// GetEmailFromClaims extracts email from JWT claims
+func GetEmailFromClaims(r *http.Request) (string, error) {
+	claims, ok := r.Context().Value(ClaimsContextKey).(map[string]interface{})
+	if !ok {
+		return "", fmt.Errorf("no claims found")
+	}
+
+	email, ok := claims["email"].(string)
+	if !ok {
+		return "", fmt.Errorf("no email found in claims")
+	}
+
+	return email, nil
 }
