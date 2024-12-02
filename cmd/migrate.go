@@ -6,10 +6,10 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
-	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 
@@ -52,17 +52,17 @@ func init() {
 func run() {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
-		time.Duration(viper.GetInt("db.query_timeout_in_sec"))*time.Second,
+		time.Duration(getEnvInt("MONGODB_QUERY_TIMEOUT_SECONDS", 30))*time.Second,
 	)
 	defer cancel()
 
-	opt := options.Client().ApplyURI(viper.GetString("db.host"))
+	opt := options.Client().ApplyURI(os.Getenv("MONGODB_URI"))
 	client, err := mongo.Connect(opt)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	db := client.Database(viper.GetString("db.database"))
+	db := client.Database(os.Getenv("MONGODB_DATABASE"))
 
 	migrate.SetDatabase(db)
 	migrate.SetMigrationsCollection("migrations")
@@ -101,4 +101,13 @@ func run() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+}
+
+func getEnvInt(key string, fallback int) int {
+	if value, exists := os.LookupEnv(key); exists {
+		if intVal, err := strconv.Atoi(value); err == nil {
+			return intVal
+		}
+	}
+	return fallback
 }

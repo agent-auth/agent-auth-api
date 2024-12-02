@@ -2,12 +2,13 @@ package connection
 
 import (
 	"context"
+	"os"
+	"strconv"
 	"sync"
 	"time"
 
 	"github.com/agent-auth/agent-auth-api/web/interfaces/v1/healthinterface"
 
-	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -52,55 +53,94 @@ func (s *mongoStore) Database() *mongo.Database {
 	return db
 }
 
+// Add environment variable validation
+func validateEnvVars() (string, string, int) {
+	dbHost := os.Getenv("MONGODB_URI")
+	if dbHost == "" {
+		zap.L().Fatal("MONGODB_URI environment variable is required")
+	}
+
+	dbName := os.Getenv("MONGODB_DATABASE")
+	if dbName == "" {
+		zap.L().Fatal("MONGODB_DATABASE environment variable is required")
+	}
+
+	queryTimeout, err := strconv.Atoi(os.Getenv("MONGODB_QUERY_TIMEOUT_SECONDS"))
+	if err != nil || queryTimeout <= 0 {
+		zap.L().Fatal("MONGODB_QUERY_TIMEOUT_SECONDS must be a positive integer",
+			zap.Error(err),
+		)
+	}
+
+	return dbHost, dbName, queryTimeout
+}
+
 func (s *mongoStore) initialize() (a *mongo.Database, b *mongo.Client) {
-	client, err := mongo.NewClient(options.Client().ApplyURI(viper.GetString("db.host")))
+	dbHost, dbName, queryTimeout := validateEnvVars()
+
+	clientOptions := options.Client().ApplyURI(dbHost)
+	clientOptions.SetServerSelectionTimeout(time.Duration(queryTimeout) * time.Second)
+
+	var err error
+	client, err = mongo.NewClient(clientOptions)
 	if err != nil {
-		s.logger.Fatal("Failed to connect to database",
+		s.logger.Fatal("Failed to create MongoDB client",
 			zap.Error(err),
+			zap.String("host", dbHost),
 		)
 	}
 
-	ctx, cancel := context.WithTimeout(
-		context.Background(),
-		time.Duration(viper.GetInt("db.query_timeout_in_sec"))*time.Second,
-	)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(queryTimeout)*time.Second)
 	defer cancel()
-	err = client.Connect(ctx)
-	if err != nil {
-		s.logger.Fatal("Failed to connect to database",
+
+	if err = client.Connect(ctx); err != nil {
+		s.logger.Fatal("Failed to connect to MongoDB",
 			zap.Error(err),
+			zap.String("host", dbHost),
 		)
 	}
 
-	database := viper.GetString("db.database")
-	db := client.Database(database)
-	s.logger.Info("Successfully connected to database",
-		zap.String("database", database),
+	// Test the connection
+	if err = client.Ping(ctx, readpref.Primary()); err != nil {
+		s.logger.Fatal("Failed to ping MongoDB",
+			zap.Error(err),
+			zap.String("host", dbHost),
+		)
+	}
+
+	db = client.Database(dbName)
+	s.logger.Info("Successfully connected to MongoDB",
+		zap.String("database", dbName),
+		zap.String("host", dbHost),
 	)
 
 	return db, client
 }
 
+// Update Health method to use environment variables
 func (s *mongoStore) Health() *healthinterface.OutboundInterface {
 	once.Do(func() {
 		db, client = s.initialize()
 	})
 
-	outbound := healthinterface.OutboundInterface{}
-	outbound.TimeStampUTC = time.Now().UTC()
-	outbound.ConnectionStatus = healthinterface.ConnectionActive
-	outbound.ApplicationName = "MongoDB"
-	outbound.URLs = []string{viper.GetString("db.host")}
+	dbHost, _, queryTimeout := validateEnvVars()
 
-	ctx, cancel := context.WithTimeout(
-		context.Background(),
-		time.Duration(viper.GetInt("db.query_timeout_in_sec"))*time.Second,
-	)
+	outbound := healthinterface.OutboundInterface{
+		TimeStampUTC:     time.Now().UTC(),
+		ConnectionStatus: healthinterface.ConnectionActive,
+		ApplicationName:  "MongoDB",
+		URLs:             []string{dbHost},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(queryTimeout)*time.Second)
 	defer cancel()
 
-	err := client.Ping(ctx, readpref.Primary())
-	if err != nil {
+	if err := client.Ping(ctx, readpref.Primary()); err != nil {
 		outbound.ConnectionStatus = healthinterface.ConnectionDisconnected
+		s.logger.Error("Failed to ping MongoDB during health check",
+			zap.Error(err),
+			zap.String("host", dbHost),
+		)
 	}
 
 	return &outbound
