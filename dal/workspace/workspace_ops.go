@@ -1,4 +1,4 @@
-package projectdal
+package workspacesdal
 
 import (
 	"context"
@@ -253,4 +253,25 @@ func (w *workspaces) GetByID(id primitive.ObjectID) (*dbmodels.Workspace, error)
 	}
 
 	return &workspace, nil
+}
+
+// IsMember checks if the given email is a member of the specified project
+func (w *workspaces) IsMember(workspaceID, email string) (bool, error) {
+	collection := w.db.Database().Collection(w.collectionName)
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		time.Duration(w.queryTimeoutSeconds)*time.Second,
+	)
+	defer cancel()
+
+	// Find project members where email matches
+	count, err := collection.CountDocuments(ctx, bson.M{
+		"_id":     workspaceID,
+		"Members": email,
+	})
+	if err != nil {
+		return false, fmt.Errorf("error checking workspace membership: %w", err)
+	}
+
+	return count > 0, nil
 }

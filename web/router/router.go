@@ -121,7 +121,7 @@ func (router *router) Router(enableCORS bool) *chi.Mux {
 	})
 
 	// Path for all OAuth resource operations
-	protected.Route("/{workspace_id}/{project_id}/oauth/resources", func(r chi.Router) {
+	protected.Route("/projects/{project_id}/resources", func(r chi.Router) {
 		// System Admin routes
 
 		// Workspace Admin routes
@@ -146,7 +146,7 @@ func (router *router) Router(enableCORS bool) *chi.Mux {
 	})
 
 	// Add roles and permissions routes
-	protected.Route("/{workspace_id}/{project_id}/roles", func(r chi.Router) {
+	protected.Route("/projects/{project_id}/roles", func(r chi.Router) {
 		r.With(authz.RequireRoles(authz.WorkspaceAdmin, authz.SystemAdmin, authz.AppAdmin, authz.AppDeveloper)).
 			Group(func(r chi.Router) {
 				r.Post("/", router.rolesService.CreateRole)

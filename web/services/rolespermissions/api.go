@@ -22,4 +22,7 @@ var (
 	ErrIncompleteDetails   = errors.New("incorrect details provided, please provide correct details")
 	ErrNotFound            = errors.New("role not found")
 	ErrInternalServerError = errors.New("internal server error")
+	ErrUnauthorized        = errors.New("unauthorized")
+	ErrForbidden           = errors.New("forbidden - insufficient permissions")
+	ErrInvalidRole         = errors.New("role does not belong to this project")
 )

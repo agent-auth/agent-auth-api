@@ -1,4 +1,4 @@
-package projectdal
+package projectsdal
 
 import (
 	"context"
@@ -20,8 +20,8 @@ type projects struct {
 	queryTimeoutSeconds int
 }
 
-// NewProjectDal creates a new ProjectDal instance
-func NewProjectDal() ProjectDal {
+// NewProjectsDal creates a new ProjectsDal instance
+func NewProjectsDal() ProjectsDal {
 	timeoutStr := os.Getenv("DB_QUERY_TIMEOUT_SECONDS")
 	timeout, err := strconv.Atoi(timeoutStr)
 	if err != nil {
@@ -269,4 +269,25 @@ func (p *projects) RemoveMember(projectID, memberID primitive.ObjectID) error {
 	}
 
 	return nil
+}
+
+// IsMember checks if the given email is a member of the specified project
+func (p *projects) IsMember(projectID, email string) (bool, error) {
+	collection := p.db.Database().Collection(p.collectionName)
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		time.Duration(p.queryTimeoutSeconds)*time.Second,
+	)
+	defer cancel()
+
+	// Find project members where email matches
+	count, err := collection.CountDocuments(ctx, bson.M{
+		"_id":     projectID,
+		"Members": email,
+	})
+	if err != nil {
+		return false, fmt.Errorf("error checking project membership: %w", err)
+	}
+
+	return count > 0, nil
 }

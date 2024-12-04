@@ -1,4 +1,4 @@
-package projectdal
+package workspacesdal
 
 import (
 	"github.com/agent-auth/agent-auth-api/database/dbmodels"
@@ -16,4 +16,5 @@ type WorkspaceDal interface {
 	GetByOwnerID(ownerID primitive.ObjectID) ([]*dbmodels.Workspace, error)
 	AddMember(workspaceID string, memberID string) error
 	RemoveMember(workspaceID string, memberID string) error
+	IsMember(workspaceID, email string) (bool, error)
 }

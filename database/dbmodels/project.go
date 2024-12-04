@@ -14,13 +14,13 @@ type Project struct {
 	UpdatedTimestampUTC time.Time          `json:"UpdatedTimestampUTC,omitempty" bson:"UpdatedTimestampUTC,omitempty"`
 
 	// Project details
-	Name        string               `json:"Name,omitempty" bson:"Name,omitempty"`               // Name of the project
-	Description string               `json:"Description,omitempty" bson:"Description,omitempty"` // Description of the project
-	Slug        string               `json:"Slug,omitempty" bson:"Slug,omitempty"`               // Slug for unique URL identification
-	WorkspaceID primitive.ObjectID   `json:"WorkspaceID,omitempty" bson:"WorkspaceID,omitempty"` // Reference to the workspace it belongs to
-	OwnerID     primitive.ObjectID   `json:"OwnerID,omitempty" bson:"OwnerID,omitempty"`         // Project owner (user ID)
-	Members     []primitive.ObjectID `json:"Members,omitempty" bson:"Members,omitempty"`         // List of member IDs associated with the project
-	Status      string               `json:"Status,omitempty" bson:"Status,omitempty"`           // Status of the project (e.g., "Active", "Completed")
+	Name        string             `json:"Name,omitempty" bson:"Name,omitempty"`               // Name of the project
+	Description string             `json:"Description,omitempty" bson:"Description,omitempty"` // Description of the project
+	Slug        string             `json:"Slug,omitempty" bson:"Slug,omitempty"`               // Slug for unique URL identification
+	WorkspaceID primitive.ObjectID `json:"WorkspaceID,omitempty" bson:"WorkspaceID,omitempty"` // Reference to the workspace it belongs to
+	OwnerID     primitive.ObjectID `json:"OwnerID,omitempty" bson:"OwnerID,omitempty"`         // Project owner (user ID)
+	Members     []string           `json:"Members,omitempty" bson:"Members,omitempty"`         // List of member IDs associated with the project
+	Status      string             `json:"Status,omitempty" bson:"Status,omitempty"`           // Status of the project (e.g., "Active", "Completed")
 
 	// Project settings
 	IsPrivate           bool   `json:"IsPrivate" bson:"IsPrivate"`                                         // Whether the project is private or public

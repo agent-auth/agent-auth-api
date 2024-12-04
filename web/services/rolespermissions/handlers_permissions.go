@@ -22,13 +22,26 @@ import (
 // @Success 204 "No Content"
 // @Failure 400 {object} errorinterface.ErrorResponse
 // @Failure 404 {object} errorinterface.ErrorResponse
-// @Router /{workspace_id}/{project_id}/roles/{role_id}/permissions [put]
+// @Router /projects/{project_id}/roles/{role_id}/permissions [put]
 // @Security BearerAuth
 func (rp *rolesService) UpdatePermission(w http.ResponseWriter, r *http.Request) {
+	projectID, _, err := rp.verifyProjectMembership(r)
+	if err != nil {
+		rp.logger.Error("project membership verification failed", zap.Error(err))
+		render.Render(w, r, renderers.ErrorForbidden(err))
+		return
+	}
+
 	roleID, err := primitive.ObjectIDFromHex(chi.URLParam(r, "role_id"))
 	if err != nil {
 		rp.logger.Error("invalid role ID", zap.Error(err))
 		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
+		return
+	}
+
+	if err := rp.verifyRoleInProject(roleID, projectID); err != nil {
+		rp.logger.Error("role verification failed", zap.Error(err))
+		render.Render(w, r, renderers.ErrorForbidden(err))
 		return
 	}
 
@@ -64,13 +77,26 @@ func (rp *rolesService) UpdatePermission(w http.ResponseWriter, r *http.Request)
 // @Success 204 "No Content"
 // @Failure 400 {object} errorinterface.ErrorResponse
 // @Failure 404 {object} errorinterface.ErrorResponse
-// @Router /{workspace_id}/{project_id}/roles/{role_id}/permissions [delete]
+// @Router /projects/{project_id}/roles/{role_id}/permissions [delete]
 // @Security BearerAuth
 func (rp *rolesService) RemovePermission(w http.ResponseWriter, r *http.Request) {
+	projectID, _, err := rp.verifyProjectMembership(r)
+	if err != nil {
+		rp.logger.Error("project membership verification failed", zap.Error(err))
+		render.Render(w, r, renderers.ErrorForbidden(err))
+		return
+	}
+
 	roleID, err := primitive.ObjectIDFromHex(chi.URLParam(r, "role_id"))
 	if err != nil {
 		rp.logger.Error("invalid role ID", zap.Error(err))
 		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
+		return
+	}
+
+	if err := rp.verifyRoleInProject(roleID, projectID); err != nil {
+		rp.logger.Error("role verification failed", zap.Error(err))
+		render.Render(w, r, renderers.ErrorForbidden(err))
 		return
 	}
 

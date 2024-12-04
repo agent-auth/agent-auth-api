@@ -7,9 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type Permissions struct {
-	Resource map[string]interface{} `json:"resource" bson:"resource"`
-}
+type Permissions map[string]interface{}
 
 // Roles represents roles for a specific resource
 type Roles struct {
