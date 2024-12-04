@@ -1,4 +1,4 @@
-package projectsdal
+package projects_dal
 
 import (
 	"github.com/agent-auth/agent-auth-api/database/dbmodels"

@@ -1,4 +1,4 @@
-package rolespermissions
+package roles_permissions
 
 import (
 	"net/http"

@@ -1,4 +1,4 @@
-package workspacesdal
+package workspaces_dal
 
 import (
 	"context"

@@ -1,4 +1,4 @@
-package rolespermissions
+package roles_permissions_dal
 
 import (
 	"context"

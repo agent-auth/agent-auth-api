@@ -1,4 +1,4 @@
-package workspacesdal
+package workspaces_dal
 
 import (
 	"github.com/agent-auth/agent-auth-api/database/dbmodels"

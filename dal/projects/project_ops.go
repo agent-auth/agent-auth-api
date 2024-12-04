@@ -1,4 +1,4 @@
-package projectsdal
+package projects_dal
 
 import (
 	"context"
