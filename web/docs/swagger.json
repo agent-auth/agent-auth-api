@@ -769,43 +769,459 @@
                     }
                 }
             }
+        },
+        "/{workspace_id}/{project_id}/roles": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Gets all roles for a specific project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "roles"
+                ],
+                "summary": "Get roles by project",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workspace ID",
+                        "name": "workspace_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/rolespermissions.RoleResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new role",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "roles"
+                ],
+                "summary": "Create role",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workspace ID",
+                        "name": "workspace_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Role details",
+                        "name": "role",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rolespermissions.RoleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rolespermissions.RoleResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deletes all roles for a specific project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "roles"
+                ],
+                "summary": "Delete permissions by project",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workspace ID",
+                        "name": "workspace_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/{workspace_id}/{project_id}/roles/{role_id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Gets a role by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "roles"
+                ],
+                "summary": "Get role",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workspace ID",
+                        "name": "workspace_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Role ID",
+                        "name": "role_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rolespermissions.RoleResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deletes a role by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "roles"
+                ],
+                "summary": "Delete permission",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workspace ID",
+                        "name": "workspace_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Role ID",
+                        "name": "role_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/{workspace_id}/{project_id}/roles/{role_id}/permissions": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates a specific attribute of a permission",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "permissions"
+                ],
+                "summary": "Update permission attribute",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Role ID",
+                        "name": "role_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Attribute update details",
+                        "name": "attribute",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rolespermissions.UpdateAttributeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Removes a specific attribute from a permission",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "permissions"
+                ],
+                "summary": "Remove permission attribute",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Role ID",
+                        "name": "role_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Attribute path",
+                        "name": "path",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/errorinterface.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "dbmodels.AuditLog": {
+            "type": "object",
+            "properties": {
+                "Action": {
+                    "description": "Action taken (e.g., \"Created Task\", \"Updated Milestone\")",
+                    "type": "string"
+                },
+                "Details": {
+                    "description": "Detailed description of the action",
+                    "type": "string"
+                },
+                "Timestamp": {
+                    "description": "When the action was performed",
+                    "type": "string"
+                },
+                "UserID": {
+                    "description": "The user who performed the action",
+                    "type": "string"
+                }
+            }
+        },
+        "dbmodels.Permissions": {
+            "type": "object",
+            "properties": {
+                "resource": {
+                    "type": "object",
+                    "additionalProperties": true
+                }
+            }
+        },
         "dbmodels.Workspace": {
             "type": "object",
             "properties": {
-                "AllowEmailInvites": {
-                    "description": "Email domain settings",
-                    "type": "boolean"
-                },
-                "AllowJITProvisioning": {
-                    "description": "Just-in-time (JIT) provisioning",
-                    "type": "boolean"
-                },
-                "AllowSecondaryAuth": {
-                    "description": "Flag for secondary authentication method allowance",
-                    "type": "boolean"
-                },
-                "AllowedDomains": {
-                    "description": "List of allowed email domains for invites",
+                "AuditLogs": {
+                    "description": "Audit logs for project actions",
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/dbmodels.AuditLog"
                     }
                 },
                 "CreatedTimestampUTC": {
                     "type": "string"
                 },
+                "Deleted": {
+                    "type": "boolean"
+                },
                 "Description": {
                     "type": "string"
                 },
-                "InviteDomainRestriction": {
-                    "description": "Restrict invites based on email domain",
-                    "type": "boolean"
-                },
                 "Members": {
-                    "description": "List of members belonging to the workspace",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -816,23 +1232,9 @@
                     "type": "string"
                 },
                 "OwnerID": {
-                    "description": "Workspace owner",
                     "type": "string"
                 },
-                "PrimaryAuthEnabled": {
-                    "description": "Authentication settings",
-                    "type": "boolean"
-                },
-                "RequireMFA": {
-                    "description": "Flag for multi-factor authentication requirement",
-                    "type": "boolean"
-                },
-                "SecondaryAuthEnabled": {
-                    "description": "Flag for secondary authentication",
-                    "type": "boolean"
-                },
                 "Slug": {
-                    "description": "Slug for URL or unique identification",
                     "type": "string"
                 },
                 "UpdatedTimestampUTC": {
@@ -1134,6 +1536,94 @@
                 }
             }
         },
+        "rolespermissions.RoleRequest": {
+            "type": "object",
+            "properties": {
+                "audit_logs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dbmodels.AuditLog"
+                    }
+                },
+                "created_timestamp_utc": {
+                    "type": "string"
+                },
+                "deleted": {
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "string"
+                },
+                "permissions": {
+                    "$ref": "#/definitions/dbmodels.Permissions"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "updated_timestamp_utc": {
+                    "type": "string"
+                }
+            }
+        },
+        "rolespermissions.RoleResponse": {
+            "type": "object",
+            "properties": {
+                "audit_logs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dbmodels.AuditLog"
+                    }
+                },
+                "created_timestamp_utc": {
+                    "type": "string"
+                },
+                "deleted": {
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "string"
+                },
+                "permissions": {
+                    "$ref": "#/definitions/dbmodels.Permissions"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "updated_timestamp_utc": {
+                    "type": "string"
+                }
+            }
+        },
+        "rolespermissions.UpdateAttributeRequest": {
+            "type": "object",
+            "properties": {
+                "path": {
+                    "type": "string"
+                },
+                "resource": {
+                    "type": "string"
+                },
+                "value": {}
+            }
+        },
         "workspace.AddMemberRequest": {
             "type": "object",
             "properties": {
@@ -1146,37 +1636,23 @@
             "description": "Workspace request model",
             "type": "object",
             "properties": {
-                "AllowEmailInvites": {
-                    "description": "Email domain settings",
-                    "type": "boolean"
-                },
-                "AllowJITProvisioning": {
-                    "description": "Just-in-time (JIT) provisioning",
-                    "type": "boolean"
-                },
-                "AllowSecondaryAuth": {
-                    "description": "Flag for secondary authentication method allowance",
-                    "type": "boolean"
-                },
-                "AllowedDomains": {
-                    "description": "List of allowed email domains for invites",
+                "AuditLogs": {
+                    "description": "Audit logs for project actions",
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/dbmodels.AuditLog"
                     }
                 },
                 "CreatedTimestampUTC": {
                     "type": "string"
                 },
+                "Deleted": {
+                    "type": "boolean"
+                },
                 "Description": {
                     "type": "string"
                 },
-                "InviteDomainRestriction": {
-                    "description": "Restrict invites based on email domain",
-                    "type": "boolean"
-                },
                 "Members": {
-                    "description": "List of members belonging to the workspace",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -1187,23 +1663,9 @@
                     "type": "string"
                 },
                 "OwnerID": {
-                    "description": "Workspace owner",
                     "type": "string"
                 },
-                "PrimaryAuthEnabled": {
-                    "description": "Authentication settings",
-                    "type": "boolean"
-                },
-                "RequireMFA": {
-                    "description": "Flag for multi-factor authentication requirement",
-                    "type": "boolean"
-                },
-                "SecondaryAuthEnabled": {
-                    "description": "Flag for secondary authentication",
-                    "type": "boolean"
-                },
                 "Slug": {
-                    "description": "Slug for URL or unique identification",
                     "type": "string"
                 },
                 "UpdatedTimestampUTC": {
@@ -1218,37 +1680,23 @@
             "description": "Workspace response model",
             "type": "object",
             "properties": {
-                "AllowEmailInvites": {
-                    "description": "Email domain settings",
-                    "type": "boolean"
-                },
-                "AllowJITProvisioning": {
-                    "description": "Just-in-time (JIT) provisioning",
-                    "type": "boolean"
-                },
-                "AllowSecondaryAuth": {
-                    "description": "Flag for secondary authentication method allowance",
-                    "type": "boolean"
-                },
-                "AllowedDomains": {
-                    "description": "List of allowed email domains for invites",
+                "AuditLogs": {
+                    "description": "Audit logs for project actions",
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/dbmodels.AuditLog"
                     }
                 },
                 "CreatedTimestampUTC": {
                     "type": "string"
                 },
+                "Deleted": {
+                    "type": "boolean"
+                },
                 "Description": {
                     "type": "string"
                 },
-                "InviteDomainRestriction": {
-                    "description": "Restrict invites based on email domain",
-                    "type": "boolean"
-                },
                 "Members": {
-                    "description": "List of members belonging to the workspace",
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -1259,23 +1707,9 @@
                     "type": "string"
                 },
                 "OwnerID": {
-                    "description": "Workspace owner",
                     "type": "string"
                 },
-                "PrimaryAuthEnabled": {
-                    "description": "Authentication settings",
-                    "type": "boolean"
-                },
-                "RequireMFA": {
-                    "description": "Flag for multi-factor authentication requirement",
-                    "type": "boolean"
-                },
-                "SecondaryAuthEnabled": {
-                    "description": "Flag for secondary authentication",
-                    "type": "boolean"
-                },
                 "Slug": {
-                    "description": "Slug for URL or unique identification",
                     "type": "string"
                 },
                 "UpdatedTimestampUTC": {

@@ -10,7 +10,7 @@ import (
 )
 
 // UpdatePermission updates a specific permission attribute using dot notation
-func (p *roles) UpdatePermission(id primitive.ObjectID, path string, value interface{}) error {
+func (p *roles) UpdatePermission(id primitive.ObjectID, resource string, key string, value interface{}) error {
 	collection := p.db.Database().Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -18,8 +18,11 @@ func (p *roles) UpdatePermission(id primitive.ObjectID, path string, value inter
 	)
 	defer cancel()
 
+	// Construct the path for the permissions update
+	permissionPath := fmt.Sprintf("permissions.%s.%s", resource, key)
+
 	updates := bson.M{
-		path:                    value,
+		permissionPath:          value,
 		"updated_timestamp_utc": time.Now(),
 	}
 
@@ -39,7 +42,7 @@ func (p *roles) UpdatePermission(id primitive.ObjectID, path string, value inter
 }
 
 // RemovePermission removes a specific permission attribute
-func (p *roles) RemovePermission(id primitive.ObjectID, path string) error {
+func (p *roles) RemovePermission(id primitive.ObjectID, resource string, key string) error {
 	collection := p.db.Database().Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -47,8 +50,11 @@ func (p *roles) RemovePermission(id primitive.ObjectID, path string) error {
 	)
 	defer cancel()
 
+	// Construct the path for the permissions removal
+	permissionPath := fmt.Sprintf("permissions.%s.%s", resource, key)
+
 	updates := bson.M{
-		"$unset": bson.M{path: ""},
+		"$unset": bson.M{permissionPath: ""},
 		"$set":   bson.M{"updated_timestamp_utc": time.Now()},
 	}
 

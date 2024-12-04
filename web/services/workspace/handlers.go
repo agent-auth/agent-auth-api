@@ -23,7 +23,7 @@ type WorkspaceRequest struct {
 }
 
 func (w *WorkspaceRequest) Bind(r *http.Request) error {
-	return w.Workspace.Validate()
+	return nil
 }
 
 // @Description Workspace response model
@@ -56,14 +56,6 @@ type AddMemberRequest struct {
 func (ws *workspaceService) AddMember(w http.ResponseWriter, r *http.Request) {
 	email, _ := authz.GetEmailFromClaims(r)
 
-	// Convert email to ObjectID
-	ownerID, err := primitive.ObjectIDFromHex(email)
-	if err != nil {
-		ws.logger.Error("failed to convert email to ObjectID", zap.Error(err))
-		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
-		return
-	}
-
 	workspaceID, err := primitive.ObjectIDFromHex(chi.URLParam(r, "workspace_id"))
 	if err != nil {
 		ws.logger.Error("invalid workspace ID", zap.Error(err))
@@ -79,13 +71,6 @@ func (ws *workspaceService) AddMember(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	memberID, err := primitive.ObjectIDFromHex(req.MemberID)
-	if err != nil {
-		ws.logger.Error("invalid member ID", zap.Error(err))
-		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
-		return
-	}
-
 	// Verify ownership
 	workspace, err := ws.workspaceDal.GetByID(workspaceID)
 	if err != nil {
@@ -94,21 +79,21 @@ func (ws *workspaceService) AddMember(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if workspace.OwnerID != ownerID {
-		ws.logger.Error("unauthorized add member attempt", zap.String("userID", ownerID.Hex()))
+	if workspace.OwnerID != email {
+		ws.logger.Error("unauthorized add member attempt", zap.String("userID", email))
 		render.Render(w, r, renderers.ErrorUnauthorized(ErrUnauthorized))
 		return
 	}
 
 	// Check if member already exists
 	for _, existingMember := range workspace.Members {
-		if existingMember == memberID {
+		if existingMember == req.MemberID {
 			render.Status(r, http.StatusNoContent) // Member already exists, return success
 			return
 		}
 	}
 
-	if err := ws.workspaceDal.AddMember(workspaceID, memberID); err != nil {
+	if err := ws.workspaceDal.AddMember(workspaceID.Hex(), req.MemberID); err != nil {
 		ws.logger.Error("failed to add member", zap.Error(err))
 		render.Render(w, r, renderers.ErrorInternalServerError(err))
 		return
@@ -134,14 +119,6 @@ func (ws *workspaceService) AddMember(w http.ResponseWriter, r *http.Request) {
 func (ws *workspaceService) RemoveMember(w http.ResponseWriter, r *http.Request) {
 	email, _ := authz.GetEmailFromClaims(r)
 
-	// Convert email to ObjectID
-	ownerID, err := primitive.ObjectIDFromHex(email)
-	if err != nil {
-		ws.logger.Error("failed to convert email to ObjectID", zap.Error(err))
-		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
-		return
-	}
-
 	workspaceID, err := primitive.ObjectIDFromHex(chi.URLParam(r, "workspace_id"))
 	if err != nil {
 		ws.logger.Error("invalid workspace ID", zap.Error(err))
@@ -149,7 +126,7 @@ func (ws *workspaceService) RemoveMember(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	memberID, err := primitive.ObjectIDFromHex(chi.URLParam(r, "member_id"))
+	memberID := chi.URLParam(r, "member_id")
 	if err != nil {
 		ws.logger.Error("invalid member ID", zap.Error(err))
 		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
@@ -164,19 +141,19 @@ func (ws *workspaceService) RemoveMember(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if workspace.OwnerID != ownerID {
-		ws.logger.Error("unauthorized remove member attempt", zap.String("userID", ownerID.Hex()))
+	if workspace.OwnerID != email {
+		ws.logger.Error("unauthorized remove member attempt", zap.String("userID", email))
 		render.Render(w, r, renderers.ErrorUnauthorized(ErrUnauthorized))
 		return
 	}
 
-	if memberID == workspace.OwnerID {
+	if memberID == email {
 		ws.logger.Error("attempt to remove workspace owner", zap.String("workspaceID", workspaceID.Hex()))
 		render.Render(w, r, renderers.ErrorBadRequest(errors.New("cannot remove workspace owner")))
 		return
 	}
 
-	if err := ws.workspaceDal.RemoveMember(workspaceID, memberID); err != nil {
+	if err := ws.workspaceDal.RemoveMember(workspaceID.Hex(), memberID); err != nil {
 		ws.logger.Error("failed to remove member", zap.Error(err))
 		render.Render(w, r, renderers.ErrorInternalServerError(err))
 		return
@@ -211,19 +188,15 @@ func (ws *workspaceService) Create(w http.ResponseWriter, r *http.Request) {
 
 	workspace.Workspace.CreatedTimestampUTC = time.Now().UTC()
 	workspace.Workspace.UpdatedTimestampUTC = time.Now().UTC()
+	workspace.Workspace.OwnerID = email
+	workspace.Workspace.Members = []string{email}
 
-	// Convert email to ObjectID
-	ownerID, err := primitive.ObjectIDFromHex(email)
-	if err != nil {
-		ws.logger.Error("failed to convert email to ObjectID", zap.Error(err))
+	if err := workspace.Workspace.Validate(); err != nil {
 		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
 		return
 	}
 
-	workspace.Workspace.OwnerID = ownerID
-	workspace.Workspace.Members = []primitive.ObjectID{ownerID}
-
-	resp, err := ws.workspaceDal.Create("", workspace.Workspace)
+	resp, err := ws.workspaceDal.Create(workspace.Workspace)
 	if err != nil {
 		ws.logger.Error("failed to create workspace", zap.Error(err))
 		render.Render(w, r, renderers.ErrorInternalServerError(err))
@@ -282,15 +255,6 @@ func (ws *workspaceService) Get(w http.ResponseWriter, r *http.Request) {
 // @Router /workspaces/{workspace_id} [put]
 // @Security BearerAuth
 func (ws *workspaceService) Update(w http.ResponseWriter, r *http.Request) {
-	email, _ := authz.GetEmailFromClaims(r)
-
-	ownerID, err := primitive.ObjectIDFromHex(email)
-	if err != nil {
-		ws.logger.Error("failed to convert email to ObjectID", zap.Error(err))
-		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
-		return
-	}
-
 	workspace := &WorkspaceRequest{
 		Workspace: &dbmodels.Workspace{},
 	}
@@ -309,22 +273,29 @@ func (ws *workspaceService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if existing.OwnerID != ownerID {
-		ws.logger.Error("unauthorized update attempt", zap.String("userID", ownerID.Hex()))
-		render.Render(w, r, renderers.ErrorUnauthorized(ErrUnauthorized))
+	// Prevent changes to owner, members, and slug
+	workspace.Workspace.OwnerID = existing.OwnerID
+	workspace.Workspace.Members = existing.Members
+	workspace.Workspace.Slug = existing.Slug
+
+	// Only allow updates to name and description
+	existing.Name = workspace.Workspace.Name
+	existing.Description = workspace.Workspace.Description
+	existing.UpdatedTimestampUTC = time.Now().UTC()
+
+	if err := existing.Validate(); err != nil {
+		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
 		return
 	}
 
-	workspace.Workspace.UpdatedTimestampUTC = time.Now().UTC()
-
-	if err := ws.workspaceDal.Update(workspace.Workspace); err != nil {
+	if err := ws.workspaceDal.Update(existing); err != nil {
 		ws.logger.Error("failed to update workspace", zap.Error(err))
 		render.Render(w, r, renderers.ErrorInternalServerError(err))
 		return
 	}
 
 	render.Respond(w, r, &WorkspaceResponse{
-		Workspace: workspace.Workspace,
+		Workspace: existing,
 	})
 }
 
@@ -342,34 +313,10 @@ func (ws *workspaceService) Update(w http.ResponseWriter, r *http.Request) {
 // @Router /workspaces/{workspace_id} [delete]
 // @Security BearerAuth
 func (ws *workspaceService) Delete(w http.ResponseWriter, r *http.Request) {
-	email, _ := authz.GetEmailFromClaims(r)
-
-	// Convert email to ObjectID
-	ownerID, err := primitive.ObjectIDFromHex(email)
-	if err != nil {
-		ws.logger.Error("failed to convert email to ObjectID", zap.Error(err))
-		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
-		return
-	}
-
 	workspaceID, err := primitive.ObjectIDFromHex(chi.URLParam(r, "workspace_id"))
 	if err != nil {
 		ws.logger.Error("invalid workspace ID", zap.Error(err))
 		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
-		return
-	}
-
-	// Verify ownership
-	existing, err := ws.workspaceDal.GetByID(workspaceID)
-	if err != nil {
-		ws.logger.Error("failed to get workspace", zap.Error(err))
-		render.Render(w, r, renderers.ErrorNotFound(ErrNotFound))
-		return
-	}
-
-	if existing.OwnerID != ownerID {
-		ws.logger.Error("unauthorized delete attempt", zap.String("userID", ownerID.Hex()))
-		render.Render(w, r, renderers.ErrorUnauthorized(ErrUnauthorized))
 		return
 	}
 

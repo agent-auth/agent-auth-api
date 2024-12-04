@@ -8,5 +8,10 @@ export API_AUTH_ISSUER=""
 export MONGODB_URI="mongodb://localhost:27017"
 export MONGODB_DATABASE="agent-auth"
 export MONGODB_QUERY_TIMEOUT_SECONDS="5"
+
 export DB_PROJECTS_COLLECTION="projects"
 export DB_WORKSPACES_COLLECTION="workspaces"
+export DB_ROLES_COLLECTION="roles"
+
+export PORT="8002"
+export ENABLE_CORS="true"

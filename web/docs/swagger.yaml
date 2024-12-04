@@ -1,30 +1,40 @@
 basePath: /
 definitions:
+  dbmodels.AuditLog:
+    properties:
+      Action:
+        description: Action taken (e.g., "Created Task", "Updated Milestone")
+        type: string
+      Details:
+        description: Detailed description of the action
+        type: string
+      Timestamp:
+        description: When the action was performed
+        type: string
+      UserID:
+        description: The user who performed the action
+        type: string
+    type: object
+  dbmodels.Permissions:
+    properties:
+      resource:
+        additionalProperties: true
+        type: object
+    type: object
   dbmodels.Workspace:
     properties:
-      AllowEmailInvites:
-        description: Email domain settings
-        type: boolean
-      AllowJITProvisioning:
-        description: Just-in-time (JIT) provisioning
-        type: boolean
-      AllowSecondaryAuth:
-        description: Flag for secondary authentication method allowance
-        type: boolean
-      AllowedDomains:
-        description: List of allowed email domains for invites
+      AuditLogs:
+        description: Audit logs for project actions
         items:
-          type: string
+          $ref: '#/definitions/dbmodels.AuditLog'
         type: array
       CreatedTimestampUTC:
         type: string
+      Deleted:
+        type: boolean
       Description:
         type: string
-      InviteDomainRestriction:
-        description: Restrict invites based on email domain
-        type: boolean
       Members:
-        description: List of members belonging to the workspace
         items:
           type: string
         type: array
@@ -32,19 +42,8 @@ definitions:
         description: Workspace details
         type: string
       OwnerID:
-        description: Workspace owner
         type: string
-      PrimaryAuthEnabled:
-        description: Authentication settings
-        type: boolean
-      RequireMFA:
-        description: Flag for multi-factor authentication requirement
-        type: boolean
-      SecondaryAuthEnabled:
-        description: Flag for secondary authentication
-        type: boolean
       Slug:
-        description: Slug for URL or unique identification
         type: string
       UpdatedTimestampUTC:
         type: string
@@ -243,6 +242,64 @@ definitions:
           type: string
         type: array
     type: object
+  rolespermissions.RoleRequest:
+    properties:
+      audit_logs:
+        items:
+          $ref: '#/definitions/dbmodels.AuditLog'
+        type: array
+      created_timestamp_utc:
+        type: string
+      deleted:
+        type: boolean
+      description:
+        type: string
+      id:
+        type: string
+      owner_id:
+        type: string
+      permissions:
+        $ref: '#/definitions/dbmodels.Permissions'
+      project_id:
+        type: string
+      role:
+        type: string
+      updated_timestamp_utc:
+        type: string
+    type: object
+  rolespermissions.RoleResponse:
+    properties:
+      audit_logs:
+        items:
+          $ref: '#/definitions/dbmodels.AuditLog'
+        type: array
+      created_timestamp_utc:
+        type: string
+      deleted:
+        type: boolean
+      description:
+        type: string
+      id:
+        type: string
+      owner_id:
+        type: string
+      permissions:
+        $ref: '#/definitions/dbmodels.Permissions'
+      project_id:
+        type: string
+      role:
+        type: string
+      updated_timestamp_utc:
+        type: string
+    type: object
+  rolespermissions.UpdateAttributeRequest:
+    properties:
+      path:
+        type: string
+      resource:
+        type: string
+      value: {}
+    type: object
   workspace.AddMemberRequest:
     properties:
       memberID:
@@ -251,29 +308,18 @@ definitions:
   workspace.WorkspaceRequest:
     description: Workspace request model
     properties:
-      AllowEmailInvites:
-        description: Email domain settings
-        type: boolean
-      AllowJITProvisioning:
-        description: Just-in-time (JIT) provisioning
-        type: boolean
-      AllowSecondaryAuth:
-        description: Flag for secondary authentication method allowance
-        type: boolean
-      AllowedDomains:
-        description: List of allowed email domains for invites
+      AuditLogs:
+        description: Audit logs for project actions
         items:
-          type: string
+          $ref: '#/definitions/dbmodels.AuditLog'
         type: array
       CreatedTimestampUTC:
         type: string
+      Deleted:
+        type: boolean
       Description:
         type: string
-      InviteDomainRestriction:
-        description: Restrict invites based on email domain
-        type: boolean
       Members:
-        description: List of members belonging to the workspace
         items:
           type: string
         type: array
@@ -281,19 +327,8 @@ definitions:
         description: Workspace details
         type: string
       OwnerID:
-        description: Workspace owner
         type: string
-      PrimaryAuthEnabled:
-        description: Authentication settings
-        type: boolean
-      RequireMFA:
-        description: Flag for multi-factor authentication requirement
-        type: boolean
-      SecondaryAuthEnabled:
-        description: Flag for secondary authentication
-        type: boolean
       Slug:
-        description: Slug for URL or unique identification
         type: string
       UpdatedTimestampUTC:
         type: string
@@ -303,29 +338,18 @@ definitions:
   workspace.WorkspaceResponse:
     description: Workspace response model
     properties:
-      AllowEmailInvites:
-        description: Email domain settings
-        type: boolean
-      AllowJITProvisioning:
-        description: Just-in-time (JIT) provisioning
-        type: boolean
-      AllowSecondaryAuth:
-        description: Flag for secondary authentication method allowance
-        type: boolean
-      AllowedDomains:
-        description: List of allowed email domains for invites
+      AuditLogs:
+        description: Audit logs for project actions
         items:
-          type: string
+          $ref: '#/definitions/dbmodels.AuditLog'
         type: array
       CreatedTimestampUTC:
         type: string
+      Deleted:
+        type: boolean
       Description:
         type: string
-      InviteDomainRestriction:
-        description: Restrict invites based on email domain
-        type: boolean
       Members:
-        description: List of members belonging to the workspace
         items:
           type: string
         type: array
@@ -333,19 +357,8 @@ definitions:
         description: Workspace details
         type: string
       OwnerID:
-        description: Workspace owner
         type: string
-      PrimaryAuthEnabled:
-        description: Authentication settings
-        type: boolean
-      RequireMFA:
-        description: Flag for multi-factor authentication requirement
-        type: boolean
-      SecondaryAuthEnabled:
-        description: Flag for secondary authentication
-        type: boolean
       Slug:
-        description: Slug for URL or unique identification
         type: string
       UpdatedTimestampUTC:
         type: string
@@ -574,6 +587,265 @@ paths:
       summary: Get a resource
       tags:
       - resources
+  /{workspace_id}/{project_id}/roles:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes all roles for a specific project
+      parameters:
+      - description: Workspace ID
+        in: path
+        name: workspace_id
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete permissions by project
+      tags:
+      - roles
+    get:
+      consumes:
+      - application/json
+      description: Gets all roles for a specific project
+      parameters:
+      - description: Workspace ID
+        in: path
+        name: workspace_id
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/rolespermissions.RoleResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get roles by project
+      tags:
+      - roles
+    post:
+      consumes:
+      - application/json
+      description: Creates a new role
+      parameters:
+      - description: Workspace ID
+        in: path
+        name: workspace_id
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      - description: Role details
+        in: body
+        name: role
+        required: true
+        schema:
+          $ref: '#/definitions/rolespermissions.RoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rolespermissions.RoleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create role
+      tags:
+      - roles
+  /{workspace_id}/{project_id}/roles/{role_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a role by ID
+      parameters:
+      - description: Workspace ID
+        in: path
+        name: workspace_id
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      - description: Role ID
+        in: path
+        name: role_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete permission
+      tags:
+      - roles
+    get:
+      consumes:
+      - application/json
+      description: Gets a role by ID
+      parameters:
+      - description: Workspace ID
+        in: path
+        name: workspace_id
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      - description: Role ID
+        in: path
+        name: role_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rolespermissions.RoleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get role
+      tags:
+      - roles
+  /{workspace_id}/{project_id}/roles/{role_id}/permissions:
+    delete:
+      consumes:
+      - application/json
+      description: Removes a specific attribute from a permission
+      parameters:
+      - description: Role ID
+        in: path
+        name: role_id
+        required: true
+        type: string
+      - description: Attribute path
+        in: path
+        name: path
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove permission attribute
+      tags:
+      - permissions
+    put:
+      consumes:
+      - application/json
+      description: Updates a specific attribute of a permission
+      parameters:
+      - description: Role ID
+        in: path
+        name: role_id
+        required: true
+        type: string
+      - description: Attribute update details
+        in: body
+        name: attribute
+        required: true
+        schema:
+          $ref: '#/definitions/rolespermissions.UpdateAttributeRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update permission attribute
+      tags:
+      - permissions
   /health:
     get:
       consumes:

@@ -43,7 +43,7 @@ type Project struct {
 
 	// Audit logs for project actions
 	AuditLogs []AuditLog `json:"AuditLogs,omitempty" bson:"AuditLogs,omitempty"` // Logs of actions taken within the project
-
+	Deleted   bool       `json:"Deleted,omitempty" bson:"Deleted,omitempty"`     // Flag to indicate if the project is deleted
 }
 
 // ProjectPhase represents a phase within a project (e.g., planning, development)

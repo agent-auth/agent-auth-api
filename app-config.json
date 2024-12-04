@@ -10,12 +10,6 @@
         "product_name": "XYZ API"
     },
 
-    "host": {
-        "address": "127.0.0.1",
-        "port": 8002,
-        "enable_cors": true
-    },
-
     "web": {
         "api_version_v1": "/v1",
         "url_prefix": "/recruiter-api",
@@ -27,14 +21,5 @@
         "max_age":           86400,
         "request_timeout_in_sec": 60,
         "show_api_docs": true
-    },
-    "db": {
-        "host": "mongodb://localhost:27017",
-        "database": "recruiter_db",
-        "query_timeout_in_sec": 40,
-        "recruiters_collection": "recruiters",
-        "organizations_collection": "organizations",
-        "jobs_collection": "jobs",
-        "access_tokens_collection": "access_tokens"
     }
 }

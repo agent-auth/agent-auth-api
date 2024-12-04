@@ -7,11 +7,12 @@ import (
 )
 
 type RolesDal interface {
-	Create(txID string, role *dbmodels.Roles) (*dbmodels.Roles, error)
+	Create(role *dbmodels.Roles) (*dbmodels.Roles, error)
 	Get(id primitive.ObjectID) (*dbmodels.Roles, error)
 	Delete(id primitive.ObjectID) error
 	GetByProjectID(projectID primitive.ObjectID) ([]*dbmodels.Roles, error)
 	DeleteByProjectID(projectID primitive.ObjectID) error
-	UpdatePermission(id primitive.ObjectID, path string, value interface{}) error
-	RemovePermission(id primitive.ObjectID, path string) error
+
+	UpdatePermission(id primitive.ObjectID, resource string, key string, value interface{}) error
+	RemovePermission(id primitive.ObjectID, resource string, key string) error
 }

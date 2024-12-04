@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/agent-auth/agent-auth-api/pkg/keycloak"
+	"github.com/agent-auth/agent-auth-api/pkg/logger"
 	"github.com/agent-auth/agent-auth-api/web/renderers"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
@@ -70,9 +71,6 @@ type ResourceResponse struct {
 }
 
 func NewResourceService(keycloakURL, token string) (ResourceService, error) {
-	logger, _ := zap.NewProduction()
-	defer logger.Sync()
-
 	client, err := keycloak.NewClient(keycloakURL, token)
 	if err != nil {
 		return nil, err
@@ -81,7 +79,7 @@ func NewResourceService(keycloakURL, token string) (ResourceService, error) {
 	return &resourceService{
 		client:    client,
 		resources: keycloak.NewResourceService(client),
-		logger:    logger,
+		logger:    logger.NewLogger(),
 	}, nil
 }
 

@@ -35,7 +35,7 @@ func NewRolesDal() RolesDal {
 }
 
 // Create creates a new role record
-func (p *roles) Create(txID string, role *dbmodels.Roles) (*dbmodels.Roles, error) {
+func (p *roles) Create(role *dbmodels.Roles) (*dbmodels.Roles, error) {
 	collection := p.db.Database().Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -45,6 +45,7 @@ func (p *roles) Create(txID string, role *dbmodels.Roles) (*dbmodels.Roles, erro
 
 	role.CreatedTimestampUTC = time.Now()
 	role.UpdatedTimestampUTC = role.CreatedTimestampUTC
+	role.Deleted = false
 
 	result, err := collection.InsertOne(ctx, role)
 	if err != nil {
@@ -64,14 +65,19 @@ func (p *roles) Delete(id primitive.ObjectID) error {
 	)
 	defer cancel()
 
-	result, err := collection.DeleteOne(ctx, bson.M{"_id": id})
-	if err != nil {
-		return fmt.Errorf("failed to delete role: %v", err)
+	update := bson.M{
+		"$set": bson.M{
+			"deleted":               true,
+			"updated_timestamp_utc": time.Now(),
+		},
 	}
-	if result.DeletedCount == 0 {
+	result, err := collection.UpdateOne(ctx, bson.M{"_id": id}, update)
+	if err != nil {
+		return fmt.Errorf("failed to soft delete role: %v", err)
+	}
+	if result.ModifiedCount == 0 {
 		return fmt.Errorf("role not found with id: %v", id)
 	}
-
 	return nil
 }
 
@@ -85,7 +91,10 @@ func (p *roles) Get(id primitive.ObjectID) (*dbmodels.Roles, error) {
 	defer cancel()
 
 	var role dbmodels.Roles
-	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&role)
+	err := collection.FindOne(ctx, bson.M{
+		"_id":     id,
+		"deleted": bson.M{"$ne": true},
+	}).Decode(&role)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get role: %w", err)
 	}
@@ -102,14 +111,19 @@ func (p *roles) DeleteByProjectID(projectID primitive.ObjectID) error {
 	)
 	defer cancel()
 
-	result, err := collection.DeleteMany(ctx, bson.M{"project_id": projectID})
-	if err != nil {
-		return fmt.Errorf("failed to delete roles for project: %v", err)
+	update := bson.M{
+		"$set": bson.M{
+			"deleted":               true,
+			"updated_timestamp_utc": time.Now(),
+		},
 	}
-	if result.DeletedCount == 0 {
+	result, err := collection.UpdateMany(ctx, bson.M{"project_id": projectID}, update)
+	if err != nil {
+		return fmt.Errorf("failed to soft delete roles for project: %v", err)
+	}
+	if result.ModifiedCount == 0 {
 		return fmt.Errorf("no roles found for project id: %v", projectID)
 	}
-
 	return nil
 }
 
@@ -122,7 +136,10 @@ func (p *roles) GetByProjectID(projectID primitive.ObjectID) ([]*dbmodels.Roles,
 	)
 	defer cancel()
 
-	cursor, err := collection.Find(ctx, bson.M{"project_id": projectID})
+	cursor, err := collection.Find(ctx, bson.M{
+		"project_id": projectID,
+		"deleted":    bson.M{"$ne": true},
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get roles for project: %w", err)
 	}

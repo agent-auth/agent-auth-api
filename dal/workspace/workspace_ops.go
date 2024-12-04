@@ -35,7 +35,7 @@ func NewWorkspaceDal() WorkspaceDal {
 	}
 }
 
-// Delete removes a workspace by ID
+// Delete soft deletes a workspace by setting its deleted flag to true
 func (w *workspaces) Delete(id primitive.ObjectID) error {
 	collection := w.db.Database().Collection(w.collectionName)
 	ctx, cancel := context.WithTimeout(
@@ -44,11 +44,18 @@ func (w *workspaces) Delete(id primitive.ObjectID) error {
 	)
 	defer cancel()
 
-	result, err := collection.DeleteOne(ctx, bson.M{"_id": id})
-	if err != nil {
-		return fmt.Errorf("failed to delete workspace: %v", err)
+	update := bson.M{
+		"$set": bson.M{
+			"Deleted":             true,
+			"UpdatedTimestampUTC": time.Now(),
+		},
 	}
-	if result.DeletedCount == 0 {
+
+	result, err := collection.UpdateOne(ctx, bson.M{"_id": id}, update)
+	if err != nil {
+		return fmt.Errorf("failed to soft delete workspace: %v", err)
+	}
+	if result.MatchedCount == 0 {
 		return fmt.Errorf("workspace not found with id: %v", id)
 	}
 
@@ -69,7 +76,7 @@ func (w *workspaces) List(skip, limit int64) ([]*dbmodels.Workspace, error) {
 		SetLimit(limit).
 		SetSort(bson.M{"CreatedTimestampUTC": -1}) // Sort by creation date, newest first
 
-	cursor, err := collection.Find(ctx, bson.M{}, opts)
+	cursor, err := collection.Find(ctx, bson.M{"Deleted": false}, opts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list workspaces: %v", err)
 	}
@@ -93,7 +100,7 @@ func (w *workspaces) GetBySlug(slug string) (*dbmodels.Workspace, error) {
 	defer cancel()
 
 	var workspace dbmodels.Workspace
-	if err := collection.FindOne(ctx, bson.M{"Slug": slug}).Decode(&workspace); err != nil {
+	if err := collection.FindOne(ctx, bson.M{"Slug": slug, "Deleted": false}).Decode(&workspace); err != nil {
 		return nil, fmt.Errorf("failed to find workspace by slug: %v", err)
 	}
 
@@ -109,7 +116,7 @@ func (w *workspaces) GetByOwnerID(ownerID primitive.ObjectID) ([]*dbmodels.Works
 	)
 	defer cancel()
 
-	cursor, err := collection.Find(ctx, bson.M{"OwnerID": ownerID})
+	cursor, err := collection.Find(ctx, bson.M{"OwnerID": ownerID, "Deleted": false})
 	if err != nil {
 		return nil, fmt.Errorf("failed to find workspaces by owner: %v", err)
 	}
@@ -124,7 +131,7 @@ func (w *workspaces) GetByOwnerID(ownerID primitive.ObjectID) ([]*dbmodels.Works
 }
 
 // AddMember adds a member to a workspace
-func (w *workspaces) AddMember(workspaceID, memberID primitive.ObjectID) error {
+func (w *workspaces) AddMember(workspaceID string, memberID string) error {
 	collection := w.db.Database().Collection(w.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -151,7 +158,7 @@ func (w *workspaces) AddMember(workspaceID, memberID primitive.ObjectID) error {
 }
 
 // RemoveMember removes a member from a workspace
-func (w *workspaces) RemoveMember(workspaceID, memberID primitive.ObjectID) error {
+func (w *workspaces) RemoveMember(workspaceID string, memberID string) error {
 	collection := w.db.Database().Collection(w.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -188,15 +195,9 @@ func (w *workspaces) Update(workspace *dbmodels.Workspace) error {
 
 	// Fields that can be updated
 	updateDoc := bson.M{
-		"Name":                 workspace.Name,
-		"Description":          workspace.Description,
-		"PrimaryAuthEnabled":   workspace.PrimaryAuthEnabled,
-		"SecondaryAuthEnabled": workspace.SecondaryAuthEnabled,
-		"RequireMFA":           workspace.RequireMFA,
-		"AllowSecondaryAuth":   workspace.AllowSecondaryAuth,
-		"AllowEmailInvites":    workspace.AllowEmailInvites,
-		"AllowedDomains":       workspace.AllowedDomains,
-		"UpdatedTimestampUTC":  time.Now(),
+		"Name":                workspace.Name,
+		"Description":         workspace.Description,
+		"UpdatedTimestampUTC": time.Now(),
 	}
 
 	result, err := collection.UpdateOne(
@@ -215,7 +216,7 @@ func (w *workspaces) Update(workspace *dbmodels.Workspace) error {
 }
 
 // Create creates a new workspace
-func (w *workspaces) Create(txID string, workspace *dbmodels.Workspace) (*dbmodels.Workspace, error) {
+func (w *workspaces) Create(workspace *dbmodels.Workspace) (*dbmodels.Workspace, error) {
 	collection := w.db.Database().Collection(w.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -247,7 +248,7 @@ func (w *workspaces) GetByID(id primitive.ObjectID) (*dbmodels.Workspace, error)
 	defer cancel()
 
 	var workspace dbmodels.Workspace
-	if err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&workspace); err != nil {
+	if err := collection.FindOne(ctx, bson.M{"_id": id, "Deleted": false}).Decode(&workspace); err != nil {
 		return nil, fmt.Errorf("failed to find workspace: %w", err)
 	}
 

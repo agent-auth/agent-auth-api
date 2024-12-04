@@ -2,6 +2,7 @@ package workspace
 
 import (
 	projectdal "github.com/agent-auth/agent-auth-api/dal/workspace"
+	"github.com/agent-auth/agent-auth-api/pkg/logger"
 	"go.uber.org/zap"
 )
 
@@ -13,7 +14,7 @@ type workspaceService struct {
 // NewWorkspaceService returns service impl
 func NewWorkspaceService() WorkspaceService {
 	return &workspaceService{
-		logger:       zap.L(),
+		logger:       logger.NewLogger(),
 		workspaceDal: projectdal.NewWorkspaceDal(),
 	}
 }

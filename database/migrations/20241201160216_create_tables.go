@@ -68,10 +68,6 @@ func init() {
 			if err != nil {
 				return err
 			}
-			err = db.Collection(os.Getenv("DB_PROJECTS_COLLECTION")).Indexes().DropOne(ctx, "Members_1")
-			if err != nil {
-				return err
-			}
 
 			// Drop Workspace indexes
 			err = db.Collection(os.Getenv("DB_WORKSPACES_COLLECTION")).Indexes().DropOne(ctx, "Slug_1")
@@ -82,7 +78,6 @@ func init() {
 			if err != nil {
 				return err
 			}
-			err = db.Collection(os.Getenv("DB_WORKSPACES_COLLECTION")).Indexes().DropOne(ctx, "Members_1")
-			return err
+			return nil
 		})
 }

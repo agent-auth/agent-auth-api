@@ -19,6 +19,7 @@ type RolesService interface {
 
 // The list of error types presented to the end user
 var (
-	ErrIncompleteDetails = errors.New("incorrect details provided, please provide correct details")
-	ErrNotFound          = errors.New("role not found")
+	ErrIncompleteDetails   = errors.New("incorrect details provided, please provide correct details")
+	ErrNotFound            = errors.New("role not found")
+	ErrInternalServerError = errors.New("internal server error")
 )

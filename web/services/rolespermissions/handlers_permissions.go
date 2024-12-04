@@ -17,7 +17,7 @@ import (
 // @Tags permissions
 // @Accept json
 // @Produce json
-// @Param permission_id path string true "Permission ID"
+// @Param role_id path string true "Role ID"
 // @Param attribute body UpdateAttributeRequest true "Attribute update details"
 // @Success 204 "No Content"
 // @Failure 400 {object} errorinterface.ErrorResponse
@@ -39,9 +39,15 @@ func (rp *rolesService) UpdatePermission(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err := rp.rolesDal.UpdatePermission(roleID, req.Path, req.Value); err != nil {
+	if req.Path == "" || req.Resource == "" {
+		rp.logger.Error("path and resource parameters are required")
+		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
+		return
+	}
+
+	if err := rp.rolesDal.UpdatePermission(roleID, req.Resource, req.Path, req.Value); err != nil {
 		rp.logger.Error("failed to update permission attribute", zap.Error(err))
-		render.Render(w, r, renderers.ErrorNotFound(ErrNotFound))
+		render.Render(w, r, renderers.ErrorInternalServerError(ErrInternalServerError))
 		return
 	}
 
@@ -53,7 +59,7 @@ func (rp *rolesService) UpdatePermission(w http.ResponseWriter, r *http.Request)
 // @Tags permissions
 // @Accept json
 // @Produce json
-// @Param permission_id path string true "Permission ID"
+// @Param role_id path string true "Role ID"
 // @Param path path string true "Attribute path"
 // @Success 204 "No Content"
 // @Failure 400 {object} errorinterface.ErrorResponse
@@ -63,7 +69,7 @@ func (rp *rolesService) UpdatePermission(w http.ResponseWriter, r *http.Request)
 func (rp *rolesService) RemovePermission(w http.ResponseWriter, r *http.Request) {
 	roleID, err := primitive.ObjectIDFromHex(chi.URLParam(r, "role_id"))
 	if err != nil {
-		rp.logger.Error("invalid permission ID", zap.Error(err))
+		rp.logger.Error("invalid role ID", zap.Error(err))
 		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
 		return
 	}
@@ -75,14 +81,13 @@ func (rp *rolesService) RemovePermission(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	path := req.Path
-	if path == "" {
-		rp.logger.Error("path parameter is required")
+	if req.Path == "" || req.Resource == "" {
+		rp.logger.Error("path and resource parameters are required")
 		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
 		return
 	}
 
-	if err := rp.rolesDal.RemovePermission(roleID, path); err != nil {
+	if err := rp.rolesDal.RemovePermission(roleID, req.Resource, req.Path); err != nil {
 		rp.logger.Error("failed to remove permission attribute", zap.Error(err))
 		render.Render(w, r, renderers.ErrorNotFound(ErrNotFound))
 		return

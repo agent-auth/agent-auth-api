@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/agent-auth/agent-auth-api/pkg/logger"
 	"github.com/agent-auth/agent-auth-api/web/router"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
@@ -23,8 +23,8 @@ type server struct {
 // NewServer creates and configures an APIServer serving all application routes.
 func NewServer() Server {
 	var addr string
-	port := viper.GetString("host.port")
-	apiHandler := router.NewRouter().Router(viper.GetBool("host.enable_cors"))
+	port := os.Getenv("PORT")
+	apiHandler := router.NewRouter().Router(os.Getenv("ENABLE_CORS") == "true")
 
 	// allow port to be set as localhost:8001 in env during development to avoid "accept incoming network connection" request on restarts
 	if strings.Contains(port, ":") {
@@ -38,11 +38,9 @@ func NewServer() Server {
 		Handler: apiHandler,
 	}
 
-	logger, _ := zap.NewProduction()
-
 	return &server{
 		svr:    &srv,
-		logger: logger,
+		logger: logger.NewLogger(),
 	}
 }
 
@@ -59,7 +57,6 @@ func (s *server) Start() {
 	}()
 
 	s.startTimeStampUTC = time.Now().UTC()
-	viper.Set("service_started_timestamp_utc", time.Now().UTC())
 
 	s.logger.Info("server listening",
 		zap.String("address", s.svr.Addr))
