@@ -16,6 +16,9 @@ type Resource struct {
 	OwnerID   string             `json:"OwnerID,omitempty" bson:"OwnerID,omitempty"` // Project owner (user ID)
 	ProjectID primitive.ObjectID `json:"project_id,omitempty" bson:"project_id,omitempty"`
 
+	Type    string `json:"type,omitempty" bson:"type,omitempty"`
+	Version string `json:"version,omitempty" bson:"version,omitempty"`
+
 	ResourceName string   `bson:"resourceId" json:"resourceId"`
 	Description  string   `bson:"description" json:"description"`
 	Actions      []Action `bson:"actions" json:"actions"`

@@ -46,10 +46,11 @@ func (r *resources) Create(resource *dbmodels.Resource) (*dbmodels.Resource, err
 	)
 	defer cancel()
 
-	// Set timestamps
-	now := time.Now()
+	// Set timestamps and ensure fields are initialized
+	now := time.Now().UTC()
 	resource.CreatedTimestampUTC = now
 	resource.UpdatedTimestampUTC = now
+	resource.Deleted = false // Ensure new resources aren't created as deleted
 
 	result, err := collection.InsertOne(ctx, resource)
 	if err != nil {
@@ -75,22 +76,29 @@ func (r *resources) Update(resource *dbmodels.Resource) error {
 	)
 	defer cancel()
 
+	// Only update mutable fields
 	updateDoc := bson.M{
-		"Description":         resource.Description,
-		"Actions":             resource.Actions,
-		"UpdatedTimestampUTC": time.Now(),
+		"$set": bson.M{
+			"Description":         resource.Description,
+			"Actions":             resource.Actions,
+			"UpdatedTimestampUTC": time.Now().UTC(),
+			// Add any new mutable fields here
+		},
 	}
 
 	result, err := collection.UpdateOne(
 		ctx,
-		bson.M{"_id": resource.ID},
-		bson.M{"$set": updateDoc},
+		bson.M{
+			"_id":     resource.ID,
+			"Deleted": bson.M{"$ne": true}, // Don't update deleted resources
+		},
+		updateDoc,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to update resource: %w", err)
 	}
 	if result.MatchedCount == 0 {
-		return fmt.Errorf("resource not found with id: %v", resource.ID)
+		return fmt.Errorf("resource not found or already deleted with id: %v", resource.ID)
 	}
 
 	return nil
@@ -98,6 +106,9 @@ func (r *resources) Update(resource *dbmodels.Resource) error {
 
 // GetByID retrieves a resource by its ID
 func (r *resources) GetByID(id primitive.ObjectID) (*dbmodels.Resource, error) {
+	if id.IsZero() {
+		return nil, fmt.Errorf("invalid resource ID")
+	}
 	collection := r.db.Database().Collection(r.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -120,6 +131,9 @@ func (r *resources) GetByID(id primitive.ObjectID) (*dbmodels.Resource, error) {
 
 // Delete soft-deletes a resource by ID
 func (r *resources) Delete(id primitive.ObjectID) error {
+	if id.IsZero() {
+		return fmt.Errorf("invalid resource ID")
+	}
 	collection := r.db.Database().Collection(r.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -130,16 +144,23 @@ func (r *resources) Delete(id primitive.ObjectID) error {
 	update := bson.M{
 		"$set": bson.M{
 			"Deleted":             true,
-			"UpdatedTimestampUTC": time.Now(),
+			"UpdatedTimestampUTC": time.Now().UTC(),
 		},
 	}
 
-	result, err := collection.UpdateOne(ctx, bson.M{"_id": id}, update)
+	result, err := collection.UpdateOne(
+		ctx,
+		bson.M{
+			"_id":     id,
+			"Deleted": bson.M{"$ne": true}, // Prevent re-deleting
+		},
+		update,
+	)
 	if err != nil {
 		return fmt.Errorf("failed to delete resource: %w", err)
 	}
 	if result.MatchedCount == 0 {
-		return fmt.Errorf("resource not found with id: %v", id)
+		return fmt.Errorf("resource not found or already deleted with id: %v", id)
 	}
 
 	return nil
@@ -147,6 +168,9 @@ func (r *resources) Delete(id primitive.ObjectID) error {
 
 // GetByProjectID retrieves all non-deleted resources for a given project ID
 func (r *resources) GetByProjectID(projectID primitive.ObjectID) ([]*dbmodels.Resource, error) {
+	if projectID.IsZero() {
+		return nil, fmt.Errorf("invalid project ID")
+	}
 	collection := r.db.Database().Collection(r.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
