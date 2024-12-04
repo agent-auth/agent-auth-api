@@ -103,11 +103,8 @@ func (p *projects) Update(project *dbmodels.Project) error {
 	return nil
 }
 
-// List retrieves projects for a workspace with pagination
-func (p *projects) List(workspaceID primitive.ObjectID, skip, limit int64) ([]*dbmodels.Project, error) {
-	if workspaceID.IsZero() {
-		return nil, fmt.Errorf("workspace ID cannot be empty")
-	}
+// List retrieves projects for a user with pagination
+func (p *projects) List(email string, skip, limit int64) ([]*dbmodels.Project, error) {
 	if limit <= 0 {
 		limit = 10 // Set a default limit
 	}
@@ -126,9 +123,10 @@ func (p *projects) List(workspaceID primitive.ObjectID, skip, limit int64) ([]*d
 		SetLimit(limit).
 		SetSort(bson.M{"CreatedTimestampUTC": -1})
 
+	// find all projects which use if member of
 	filter := bson.M{
-		"WorkspaceID": workspaceID,
-		"Deleted":     bson.M{"$ne": true},
+		"Deleted": bson.M{"$ne": true},
+		"Members": email,
 	}
 
 	cursor, err := collection.Find(ctx, filter, opts)
@@ -242,9 +240,9 @@ func (p *projects) GetByOwnerID(ownerID string) ([]*dbmodels.Project, error) {
 }
 
 // AddMember adds a member to a project
-func (p *projects) AddMember(projectID, memberID primitive.ObjectID) error {
-	if projectID.IsZero() || memberID.IsZero() {
-		return fmt.Errorf("project ID and member ID cannot be empty")
+func (p *projects) AddMember(projectID primitive.ObjectID, email string) error {
+	if projectID.IsZero() {
+		return fmt.Errorf("project ID cannot be empty")
 	}
 	collection := p.db.Database().Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
@@ -254,7 +252,7 @@ func (p *projects) AddMember(projectID, memberID primitive.ObjectID) error {
 	defer cancel()
 
 	update := bson.M{
-		"$addToSet": bson.M{"Members": memberID},
+		"$addToSet": bson.M{"Members": email},
 		"$set": bson.M{
 			"UpdatedTimestampUTC": time.Now(),
 		},
@@ -272,7 +270,7 @@ func (p *projects) AddMember(projectID, memberID primitive.ObjectID) error {
 }
 
 // RemoveMember removes a member from a project
-func (p *projects) RemoveMember(projectID, memberID primitive.ObjectID) error {
+func (p *projects) RemoveMember(projectID primitive.ObjectID, email string) error {
 	collection := p.db.Database().Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -281,7 +279,7 @@ func (p *projects) RemoveMember(projectID, memberID primitive.ObjectID) error {
 	defer cancel()
 
 	update := bson.M{
-		"$pull": bson.M{"Members": memberID},
+		"$pull": bson.M{"Members": email},
 		"$set": bson.M{
 			"UpdatedTimestampUTC": time.Now(),
 		},
@@ -299,8 +297,8 @@ func (p *projects) RemoveMember(projectID, memberID primitive.ObjectID) error {
 }
 
 // IsMember checks if the given email is a member of the specified project
-func (p *projects) IsMember(projectID, email string) (bool, error) {
-	if projectID == "" {
+func (p *projects) IsMember(projectID primitive.ObjectID, email string) (bool, error) {
+	if projectID.IsZero() {
 		return false, fmt.Errorf("project ID cannot be empty")
 	}
 	if email == "" {

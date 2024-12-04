@@ -1,7 +1,7 @@
 package roles_permissions
 
 import (
-	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -33,6 +33,21 @@ type UpdateAttributeRequest struct {
 	Value    interface{} `json:"value"`
 }
 
+func (u *UpdateAttributeRequest) Bind(r *http.Request) error {
+	if u.Resource == "" {
+		return ErrIncompleteDetails
+	}
+	if u.Path == "" {
+		return ErrIncompleteDetails
+	}
+
+	if u.Value == nil {
+		return ErrIncompleteDetails
+	}
+
+	return nil
+}
+
 // @Summary Create role
 // @Description Creates a new role
 // @Tags roles
@@ -46,7 +61,7 @@ type UpdateAttributeRequest struct {
 // @Router /projects/{project_id}/roles [post]
 // @Security BearerAuth
 func (rp *rolesService) CreateRole(w http.ResponseWriter, r *http.Request) {
-	projectID, email, err := rp.verifyProjectMembership(r)
+	projectID, email, err := rp.hasMemberAccess(r)
 	if err != nil {
 		rp.logger.Error("project membership verification failed", zap.Error(err))
 		render.Render(w, r, renderers.ErrorForbidden(err))
@@ -54,9 +69,9 @@ func (rp *rolesService) CreateRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req RoleRequest
-	if err := json.NewDecoder(r.Body).Decode(&req.Roles); err != nil {
-		rp.logger.Error("failed to decode request", zap.Error(err))
-		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
+	if err := render.Bind(r, &req); err != nil {
+		rp.logger.Error("failed to bind request", zap.Error(err))
+		render.Render(w, r, renderers.ErrorBadRequest(err))
 		return
 	}
 
@@ -70,7 +85,7 @@ func (rp *rolesService) CreateRole(w http.ResponseWriter, r *http.Request) {
 
 	if err := req.Roles.Validate(); err != nil {
 		rp.logger.Error("invalid role details", zap.Error(err))
-		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
+		render.Render(w, r, renderers.ErrorBadRequest(err))
 		return
 	}
 
@@ -99,7 +114,7 @@ func (rp *rolesService) CreateRole(w http.ResponseWriter, r *http.Request) {
 // @Router /projects/{project_id}/roles/{role_id} [get]
 // @Security BearerAuth
 func (rp *rolesService) GetRole(w http.ResponseWriter, r *http.Request) {
-	_, _, err := rp.verifyProjectMembership(r)
+	_, _, err := rp.hasMemberAccess(r)
 	if err != nil {
 		rp.logger.Error("project membership verification failed", zap.Error(err))
 		render.Render(w, r, renderers.ErrorForbidden(err))
@@ -109,14 +124,14 @@ func (rp *rolesService) GetRole(w http.ResponseWriter, r *http.Request) {
 	roleID, err := primitive.ObjectIDFromHex(chi.URLParam(r, "role_id"))
 	if err != nil {
 		rp.logger.Error("invalid role ID", zap.Error(err))
-		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
+		render.Render(w, r, renderers.ErrorBadRequest(err))
 		return
 	}
 
 	role, err := rp.rolesDal.Get(roleID)
 	if err != nil {
 		rp.logger.Error("failed to get role", zap.Error(err))
-		render.Render(w, r, renderers.ErrorNotFound(ErrNotFound))
+		render.Render(w, r, renderers.ErrorNotFound(err))
 		return
 	}
 
@@ -138,23 +153,23 @@ func (rp *rolesService) GetRole(w http.ResponseWriter, r *http.Request) {
 // @Router /projects/{project_id}/roles/{role_id} [delete]
 // @Security BearerAuth
 func (rp *rolesService) DeleteRole(w http.ResponseWriter, r *http.Request) {
-	_, _, err := rp.verifyProjectMembership(r)
+	_, _, err := rp.hasMemberAccess(r)
 	if err != nil {
 		rp.logger.Error("project membership verification failed", zap.Error(err))
-		render.Render(w, r, renderers.ErrorForbidden(err))
+		render.Render(w, r, renderers.ErrorForbidden(fmt.Errorf("project membership verification failed")))
 		return
 	}
 
 	roleID, err := primitive.ObjectIDFromHex(chi.URLParam(r, "role_id"))
 	if err != nil {
 		rp.logger.Error("invalid role ID", zap.Error(err))
-		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
+		render.Render(w, r, renderers.ErrorBadRequest(fmt.Errorf("invalid role ID")))
 		return
 	}
 
 	if err := rp.rolesDal.Delete(roleID); err != nil {
 		rp.logger.Error("failed to delete role", zap.Error(err))
-		render.Render(w, r, renderers.ErrorNotFound(ErrNotFound))
+		render.Render(w, r, renderers.ErrorNotFound(fmt.Errorf("failed to delete role")))
 		return
 	}
 
@@ -173,17 +188,17 @@ func (rp *rolesService) DeleteRole(w http.ResponseWriter, r *http.Request) {
 // @Router /projects/{project_id}/roles [get]
 // @Security BearerAuth
 func (rp *rolesService) GetRolesByProject(w http.ResponseWriter, r *http.Request) {
-	projectID, _, err := rp.verifyProjectMembership(r)
+	projectID, _, err := rp.hasMemberAccess(r)
 	if err != nil {
 		rp.logger.Error("project membership verification failed", zap.Error(err))
-		render.Render(w, r, renderers.ErrorForbidden(err))
+		render.Render(w, r, renderers.ErrorForbidden(fmt.Errorf("project membership verification failed")))
 		return
 	}
 
 	roles, err := rp.rolesDal.GetByProjectID(projectID)
 	if err != nil {
 		rp.logger.Error("failed to get project roles", zap.Error(err))
-		render.Render(w, r, renderers.ErrorNotFound(ErrNotFound))
+		render.Render(w, r, renderers.ErrorNotFound(fmt.Errorf("failed to get project roles")))
 		return
 	}
 
@@ -207,16 +222,16 @@ func (rp *rolesService) GetRolesByProject(w http.ResponseWriter, r *http.Request
 // @Router /projects/{project_id}/roles [delete]
 // @Security BearerAuth
 func (rp *rolesService) DeleteRolesByProject(w http.ResponseWriter, r *http.Request) {
-	projectID, _, err := rp.verifyProjectMembership(r)
+	projectID, _, err := rp.hasMemberAccess(r)
 	if err != nil {
 		rp.logger.Error("project membership verification failed", zap.Error(err))
-		render.Render(w, r, renderers.ErrorForbidden(err))
+		render.Render(w, r, renderers.ErrorForbidden(fmt.Errorf("project membership verification failed")))
 		return
 	}
 
 	if err := rp.rolesDal.DeleteByProjectID(projectID); err != nil {
 		rp.logger.Error("failed to delete project roles", zap.Error(err))
-		render.Render(w, r, renderers.ErrorNotFound(ErrNotFound))
+		render.Render(w, r, renderers.ErrorNotFound(fmt.Errorf("failed to delete project roles")))
 		return
 	}
 

@@ -11,10 +11,10 @@ type ProjectsDal interface {
 	Update(project *dbmodels.Project) error
 	GetByID(id primitive.ObjectID) (*dbmodels.Project, error)
 	Delete(id primitive.ObjectID) error
-	List(workspaceID primitive.ObjectID, skip, limit int64) ([]*dbmodels.Project, error)
+	List(email string, skip, limit int64) ([]*dbmodels.Project, error)
 	GetBySlug(workspaceID primitive.ObjectID, slug string) (*dbmodels.Project, error)
 	GetByOwnerID(ownerID string) ([]*dbmodels.Project, error)
-	AddMember(projectID, memberID primitive.ObjectID) error
-	RemoveMember(projectID, memberID primitive.ObjectID) error
-	IsMember(projectID, email string) (bool, error)
+	AddMember(projectID primitive.ObjectID, email string) error
+	RemoveMember(projectID primitive.ObjectID, email string) error
+	IsMember(projectID primitive.ObjectID, email string) (bool, error)
 }
