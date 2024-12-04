@@ -36,7 +36,10 @@ func NewProjectsDal() ProjectsDal {
 }
 
 // Create creates a new project
-func (p *projects) Create(txID string, project *dbmodels.Project) (*dbmodels.Project, error) {
+func (p *projects) Create(project *dbmodels.Project) (*dbmodels.Project, error) {
+	if project == nil {
+		return nil, fmt.Errorf("project cannot be nil")
+	}
 	collection := p.db.Database().Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -65,6 +68,12 @@ func (p *projects) Create(txID string, project *dbmodels.Project) (*dbmodels.Pro
 
 // Update updates a project's mutable fields
 func (p *projects) Update(project *dbmodels.Project) error {
+	if project == nil {
+		return fmt.Errorf("project cannot be nil")
+	}
+	if project.ID.IsZero() {
+		return fmt.Errorf("project ID cannot be empty")
+	}
 	collection := p.db.Database().Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -74,21 +83,9 @@ func (p *projects) Update(project *dbmodels.Project) error {
 
 	// Only include mutable fields in the update
 	updateDoc := bson.M{
-		"Name":                     project.Name,
-		"Description":              project.Description,
-		"Status":                   project.Status,
-		"IsPrivate":                project.IsPrivate,
-		"BillingEnabled":           project.BillingEnabled,
-		"EstimatedCompletion":      project.EstimatedCompletion,
-		"AllowExternalAccess":      project.AllowExternalAccess,
-		"AllowProjectAuth":         project.AllowProjectAuth,
-		"RequireMFA":               project.RequireMFA,
-		"EnableSsoIntegration":     project.EnableSsoIntegration,
-		"AccessLevels":             project.AccessLevels,
-		"EnableEmailNotifications": project.EnableEmailNotifications,
-		"NotificationPreferences":  project.NotificationPreferences,
-		"Phases":                   project.Phases,
-		"UpdatedTimestampUTC":      time.Now(),
+		"Name":                project.Name,
+		"Description":         project.Description,
+		"UpdatedTimestampUTC": time.Now(),
 	}
 
 	result, err := collection.UpdateOne(
@@ -108,6 +105,15 @@ func (p *projects) Update(project *dbmodels.Project) error {
 
 // List retrieves projects for a workspace with pagination
 func (p *projects) List(workspaceID primitive.ObjectID, skip, limit int64) ([]*dbmodels.Project, error) {
+	if workspaceID.IsZero() {
+		return nil, fmt.Errorf("workspace ID cannot be empty")
+	}
+	if limit <= 0 {
+		limit = 10 // Set a default limit
+	}
+	if skip < 0 {
+		skip = 0
+	}
 	collection := p.db.Database().Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -120,7 +126,12 @@ func (p *projects) List(workspaceID primitive.ObjectID, skip, limit int64) ([]*d
 		SetLimit(limit).
 		SetSort(bson.M{"CreatedTimestampUTC": -1})
 
-	cursor, err := collection.Find(ctx, bson.M{"WorkspaceID": workspaceID}, opts)
+	filter := bson.M{
+		"WorkspaceID": workspaceID,
+		"Deleted":     bson.M{"$ne": true},
+	}
+
+	cursor, err := collection.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list projects: %w", err)
 	}
@@ -143,15 +154,20 @@ func (p *projects) GetByID(id primitive.ObjectID) (*dbmodels.Project, error) {
 	)
 	defer cancel()
 
+	filter := bson.M{
+		"_id":     id,
+		"Deleted": bson.M{"$ne": true},
+	}
+
 	var project dbmodels.Project
-	if err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&project); err != nil {
+	if err := collection.FindOne(ctx, filter).Decode(&project); err != nil {
 		return nil, fmt.Errorf("failed to find project: %w", err)
 	}
 
 	return &project, nil
 }
 
-// Delete removes a project by ID
+// Delete soft-deletes a project by ID
 func (p *projects) Delete(id primitive.ObjectID) error {
 	collection := p.db.Database().Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
@@ -160,11 +176,18 @@ func (p *projects) Delete(id primitive.ObjectID) error {
 	)
 	defer cancel()
 
-	result, err := collection.DeleteOne(ctx, bson.M{"_id": id})
+	update := bson.M{
+		"$set": bson.M{
+			"Deleted":             true,
+			"UpdatedTimestampUTC": time.Now(),
+		},
+	}
+
+	result, err := collection.UpdateOne(ctx, bson.M{"_id": id}, update)
 	if err != nil {
 		return fmt.Errorf("failed to delete project: %w", err)
 	}
-	if result.DeletedCount == 0 {
+	if result.MatchedCount == 0 {
 		return fmt.Errorf("project not found with id: %v", id)
 	}
 
@@ -184,6 +207,7 @@ func (p *projects) GetBySlug(workspaceID primitive.ObjectID, slug string) (*dbmo
 	filter := bson.M{
 		"WorkspaceID": workspaceID,
 		"Slug":        slug,
+		"Deleted":     bson.M{"$ne": true},
 	}
 
 	if err := collection.FindOne(ctx, filter).Decode(&project); err != nil {
@@ -194,7 +218,7 @@ func (p *projects) GetBySlug(workspaceID primitive.ObjectID, slug string) (*dbmo
 }
 
 // GetByOwnerID retrieves all projects owned by a specific user
-func (p *projects) GetByOwnerID(ownerID primitive.ObjectID) ([]*dbmodels.Project, error) {
+func (p *projects) GetByOwnerID(ownerID string) ([]*dbmodels.Project, error) {
 	collection := p.db.Database().Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -203,7 +227,7 @@ func (p *projects) GetByOwnerID(ownerID primitive.ObjectID) ([]*dbmodels.Project
 	defer cancel()
 
 	opts := options.Find().SetSort(bson.M{"CreatedTimestampUTC": -1})
-	cursor, err := collection.Find(ctx, bson.M{"OwnerID": ownerID}, opts)
+	cursor, err := collection.Find(ctx, bson.M{"OwnerID": ownerID, "Deleted": bson.M{"$ne": true}}, opts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find projects by owner: %w", err)
 	}
@@ -219,6 +243,9 @@ func (p *projects) GetByOwnerID(ownerID primitive.ObjectID) ([]*dbmodels.Project
 
 // AddMember adds a member to a project
 func (p *projects) AddMember(projectID, memberID primitive.ObjectID) error {
+	if projectID.IsZero() || memberID.IsZero() {
+		return fmt.Errorf("project ID and member ID cannot be empty")
+	}
 	collection := p.db.Database().Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -273,6 +300,12 @@ func (p *projects) RemoveMember(projectID, memberID primitive.ObjectID) error {
 
 // IsMember checks if the given email is a member of the specified project
 func (p *projects) IsMember(projectID, email string) (bool, error) {
+	if projectID == "" {
+		return false, fmt.Errorf("project ID cannot be empty")
+	}
+	if email == "" {
+		return false, fmt.Errorf("email cannot be empty")
+	}
 	collection := p.db.Database().Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
