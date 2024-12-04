@@ -12,6 +12,7 @@ export MONGODB_QUERY_TIMEOUT_SECONDS="5"
 export DB_PROJECTS_COLLECTION="projects"
 export DB_WORKSPACES_COLLECTION="workspaces"
 export DB_ROLES_COLLECTION="roles"
+export DB_RESOURCES_COLLECTION="resources"
 
 export PORT="8002"
 export ENABLE_CORS="true"

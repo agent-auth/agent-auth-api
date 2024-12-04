@@ -29,7 +29,6 @@ type Roles struct {
 func (r Roles) Validate() error {
 	return validation.ValidateStruct(&r,
 		validation.Field(&r.Role, validation.Required),
-		validation.Field(&r.Permissions, validation.Required),
 		validation.Field(&r.OwnerID, validation.Required),
 		validation.Field(&r.ProjectID, validation.Required),
 		validation.Field(&r.Description, validation.Required),
