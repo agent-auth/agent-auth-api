@@ -10,35 +10,35 @@ import (
 // Resource represents the resource model
 type Resource struct {
 	ID                  primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	CreatedTimestampUTC time.Time          `json:"CreatedTimestampUTC,omitempty" bson:"CreatedTimestampUTC,omitempty"`
-	UpdatedTimestampUTC time.Time          `json:"UpdatedTimestampUTC,omitempty" bson:"UpdatedTimestampUTC,omitempty"`
+	CreatedTimestampUTC time.Time          `json:"created_timestamp_utc,omitempty" bson:"CreatedTimestampUTC,omitempty"`
+	UpdatedTimestampUTC time.Time          `json:"updated_timestamp_utc,omitempty" bson:"UpdatedTimestampUTC,omitempty"`
 
-	OwnerID   string             `json:"OwnerID,omitempty" bson:"OwnerID,omitempty"` // Project owner (user ID)
-	ProjectID primitive.ObjectID `json:"project_id,omitempty" bson:"project_id,omitempty"`
+	OwnerID   string             `json:"owner_id,omitempty" bson:"OwnerID,omitempty"` // Project owner (user ID)
+	ProjectID primitive.ObjectID `json:"project_id,omitempty" bson:"ProjectID,omitempty"`
 
-	Type    string `json:"type,omitempty" bson:"type,omitempty"`
-	Version string `json:"version,omitempty" bson:"version,omitempty"`
+	Type    string `json:"type,omitempty" bson:"Type,omitempty"`
+	Version string `json:"version,omitempty" bson:"Version,omitempty"`
 
-	ResourceName string   `bson:"resourceId" json:"resourceId"`
-	Description  string   `bson:"description" json:"description"`
-	Actions      []Action `bson:"actions" json:"actions"`
-	URN          string   `bson:"urn" json:"urn"`
+	Name        string   `json:"name,omitempty" bson:"Name"`
+	Description string   `json:"description,omitempty" bson:"Description"`
+	Actions     []Action `json:"actions,omitempty" bson:"Actions"`
+	URN         string   `json:"urn,omitempty" bson:"URN"`
 
 	// Audit logs for project actions
-	AuditLogs []AuditLog `json:"AuditLogs,omitempty" bson:"AuditLogs,omitempty"` // Logs of actions taken within the project
-	Deleted   bool       `json:"Deleted,omitempty" bson:"Deleted,omitempty"`     // Flag to indicate if the project is deleted
+	AuditLogs []AuditLog `json:"audit_logs,omitempty" bson:"AuditLogs,omitempty"` // Logs of actions taken within the project
+	Deleted   bool       `json:"deleted,omitempty" bson:"Deleted,omitempty"`      // Flag to indicate if the project is deleted
 }
 
 // Action represents an action associated with a resource
 type Action struct {
-	Action      string `bson:"action" json:"action"`
-	Description string `bson:"description,omitempty" json:"description,omitempty"`
+	Action      string `json:"action,omitempty" bson:"Action"`
+	Description string `json:"description,omitempty" bson:"Description,omitempty"`
 }
 
 // Validate validates the workspace struct
 func (r Resource) Validate() error {
 	return validation.ValidateStruct(&r,
-		validation.Field(&r.ResourceName, validation.Required),
+		validation.Field(&r.Name, validation.Required),
 		validation.Field(&r.Description, validation.Required),
 		validation.Field(&r.Actions, validation.Required),
 		validation.Field(&r.URN, validation.Required),

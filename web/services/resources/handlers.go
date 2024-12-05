@@ -40,7 +40,7 @@ type ResourcesResponse struct {
 // @Security BearerAuth
 func (rs *resourceService) Create(w http.ResponseWriter, r *http.Request) {
 	// Verify project membership first
-	project_id, _, err := rs.hasMemberAccess(r)
+	project_id, email, err := rs.hasMemberAccess(r)
 	if err != nil {
 		rs.logger.Error("unauthorized access attempt", zap.Error(err))
 		render.Render(w, r, renderers.ErrorUnauthorized(errors.New("unauthorized access attempt")))
@@ -59,6 +59,7 @@ func (rs *resourceService) Create(w http.ResponseWriter, r *http.Request) {
 
 	// Ensure the resource is created for the verified project
 	resource.Resource.ProjectID = project_id
+	resource.Resource.OwnerID = email
 
 	if err := resource.Resource.Validate(); err != nil {
 		rs.logger.Error("invalid resource data", zap.Error(err))
@@ -173,30 +174,37 @@ func (rs *resourceService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	existing := &ResourceRequest{Resource: &dbmodels.Resource{}}
-	if err := render.Bind(r, existing); err != nil {
+	existing, err := rs.resources_dal.GetByID(resource_id)
+	if err != nil {
+		rs.logger.Error("failed to get resource", zap.Error(err))
+		render.Render(w, r, renderers.ErrorNotFound(errors.New("resource not found")))
+		return
+	}
+
+	resource := &ResourceRequest{Resource: existing}
+	if err := render.Bind(r, resource); err != nil {
 		rs.logger.Error("failed to bind update request", zap.Error(err))
 		render.Render(w, r, renderers.ErrorBadRequest(errors.New("invalid update data")))
 		return
 	}
 
 	// Update mutable fields
-	existing.Resource.Description = existing.Description
-	existing.Resource.Actions = existing.Actions
+	existing.Description = resource.Description
+	existing.Actions = resource.Actions
 
-	if err := existing.Resource.Validate(); err != nil {
+	if err := existing.Validate(); err != nil {
 		rs.logger.Error("invalid resource data", zap.Error(err))
 		render.Render(w, r, renderers.ErrorBadRequest(errors.New("invalid resource data")))
 		return
 	}
 
-	if err := rs.resources_dal.Update(existing.Resource); err != nil {
+	if err := rs.resources_dal.Update(existing); err != nil {
 		rs.logger.Error("failed to update resource", zap.Error(err))
 		render.Render(w, r, renderers.ErrorInternalServerError(errors.New("failed to update resource")))
 		return
 	}
 
-	render.Respond(w, r, &ResourceResponse{Resource: existing.Resource})
+	render.Respond(w, r, &ResourceResponse{Resource: existing})
 }
 
 // @Summary Delete resource

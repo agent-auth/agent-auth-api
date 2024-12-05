@@ -1,5 +1,12 @@
 basePath: /
 definitions:
+  dbmodels.Action:
+    properties:
+      action:
+        type: string
+      description:
+        type: string
+    type: object
   dbmodels.AuditLog:
     properties:
       Action:
@@ -53,6 +60,42 @@ definitions:
         description: Reference to the workspace it belongs to
         type: string
       id:
+        type: string
+    type: object
+  dbmodels.Resource:
+    properties:
+      actions:
+        items:
+          $ref: '#/definitions/dbmodels.Action'
+        type: array
+      audit_logs:
+        description: Audit logs for project actions
+        items:
+          $ref: '#/definitions/dbmodels.AuditLog'
+        type: array
+      created_timestamp_utc:
+        type: string
+      deleted:
+        description: Flag to indicate if the project is deleted
+        type: boolean
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      owner_id:
+        description: Project owner (user ID)
+        type: string
+      project_id:
+        type: string
+      type:
+        type: string
+      updated_timestamp_utc:
+        type: string
+      urn:
+        type: string
+      version:
         type: string
     type: object
   dbmodels.Workspace:
@@ -360,6 +403,85 @@ definitions:
       projects:
         items:
           $ref: '#/definitions/dbmodels.Project'
+        type: array
+    type: object
+  resources.ResourceRequest:
+    properties:
+      actions:
+        items:
+          $ref: '#/definitions/dbmodels.Action'
+        type: array
+      audit_logs:
+        description: Audit logs for project actions
+        items:
+          $ref: '#/definitions/dbmodels.AuditLog'
+        type: array
+      created_timestamp_utc:
+        type: string
+      deleted:
+        description: Flag to indicate if the project is deleted
+        type: boolean
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      owner_id:
+        description: Project owner (user ID)
+        type: string
+      project_id:
+        type: string
+      type:
+        type: string
+      updated_timestamp_utc:
+        type: string
+      urn:
+        type: string
+      version:
+        type: string
+    type: object
+  resources.ResourceResponse:
+    properties:
+      actions:
+        items:
+          $ref: '#/definitions/dbmodels.Action'
+        type: array
+      audit_logs:
+        description: Audit logs for project actions
+        items:
+          $ref: '#/definitions/dbmodels.AuditLog'
+        type: array
+      created_timestamp_utc:
+        type: string
+      deleted:
+        description: Flag to indicate if the project is deleted
+        type: boolean
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      owner_id:
+        description: Project owner (user ID)
+        type: string
+      project_id:
+        type: string
+      type:
+        type: string
+      updated_timestamp_utc:
+        type: string
+      urn:
+        type: string
+      version:
+        type: string
+    type: object
+  resources.ResourcesResponse:
+    properties:
+      resources:
+        items:
+          $ref: '#/definitions/dbmodels.Resource'
         type: array
     type: object
   roles_permissions.RoleRequest:
@@ -988,6 +1110,191 @@ paths:
       summary: Add member to project
       tags:
       - projects
+  /projects/{project_id}/resources:
+    get:
+      consumes:
+      - application/json
+      description: Lists all resources for a project
+      parameters:
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/resources.ResourcesResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List resources by project
+      tags:
+      - resources
+    post:
+      consumes:
+      - application/json
+      description: Creates a new resource
+      parameters:
+      - description: Resource details
+        in: body
+        name: resource
+        required: true
+        schema:
+          $ref: '#/definitions/resources.ResourceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/resources.ResourceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create resource
+      tags:
+      - resources
+  /projects/{project_id}/resources/{resource_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes a resource
+      parameters:
+      - description: Resource ID
+        in: path
+        name: resource_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete resource
+      tags:
+      - resources
+    get:
+      consumes:
+      - application/json
+      description: Gets a resource by ID
+      parameters:
+      - description: Resource ID
+        in: path
+        name: resource_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/resources.ResourceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get resource
+      tags:
+      - resources
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing resource
+      parameters:
+      - description: Resource ID
+        in: path
+        name: resource_id
+        required: true
+        type: string
+      - description: Updated resource details
+        in: body
+        name: resource
+        required: true
+        schema:
+          $ref: '#/definitions/resources.ResourceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/resources.ResourceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorinterface.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update resource
+      tags:
+      - resources
   /projects/{project_id}/roles:
     delete:
       consumes:
