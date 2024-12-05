@@ -67,8 +67,8 @@ func (p *roles) Delete(id primitive.ObjectID) error {
 
 	update := bson.M{
 		"$set": bson.M{
-			"deleted":               true,
-			"updated_timestamp_utc": time.Now(),
+			"Deleted":             true,
+			"UpdatedTimestampUTC": time.Now(),
 		},
 	}
 	result, err := collection.UpdateOne(ctx, bson.M{"_id": id}, update)
@@ -93,7 +93,7 @@ func (p *roles) Get(id primitive.ObjectID) (*dbmodels.Roles, error) {
 	var role dbmodels.Roles
 	err := collection.FindOne(ctx, bson.M{
 		"_id":     id,
-		"deleted": bson.M{"$ne": true},
+		"Deleted": bson.M{"$ne": true},
 	}).Decode(&role)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get role: %w", err)
@@ -113,8 +113,8 @@ func (p *roles) DeleteByProjectID(projectID primitive.ObjectID) error {
 
 	update := bson.M{
 		"$set": bson.M{
-			"deleted":               true,
-			"updated_timestamp_utc": time.Now(),
+			"Deleted":             true,
+			"UpdatedTimestampUTC": time.Now(),
 		},
 	}
 	result, err := collection.UpdateMany(ctx, bson.M{"project_id": projectID}, update)
@@ -137,8 +137,8 @@ func (p *roles) GetByProjectID(projectID primitive.ObjectID) ([]*dbmodels.Roles,
 	defer cancel()
 
 	cursor, err := collection.Find(ctx, bson.M{
-		"project_id": projectID,
-		"deleted":    bson.M{"$ne": true},
+		"ProjectID": projectID,
+		"Deleted":   bson.M{"$ne": true},
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get roles for project: %w", err)

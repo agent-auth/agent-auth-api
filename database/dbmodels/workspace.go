@@ -10,19 +10,19 @@ import (
 // Workspace model represents the workspace collection in the database
 type Workspace struct {
 	ID                  primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	CreatedTimestampUTC time.Time          `json:"CreatedTimestampUTC,omitempty" bson:"CreatedTimestampUTC,omitempty"`
-	UpdatedTimestampUTC time.Time          `json:"UpdatedTimestampUTC,omitempty" bson:"UpdatedTimestampUTC,omitempty"`
+	CreatedTimestampUTC time.Time          `json:"created_timestamp_utc,omitempty" bson:"CreatedTimestampUTC,omitempty"`
+	UpdatedTimestampUTC time.Time          `json:"updated_timestamp_utc,omitempty" bson:"UpdatedTimestampUTC,omitempty"`
 
 	// Workspace details
-	Name        string   `json:"Name,omitempty" bson:"Name,omitempty"`
-	Slug        string   `json:"Slug,omitempty" bson:"Slug,omitempty"`
-	Description string   `json:"Description,omitempty" bson:"Description,omitempty"`
-	OwnerID     string   `json:"OwnerID,omitempty" bson:"OwnerID,omitempty"`
-	Members     []string `json:"Members,omitempty" bson:"Members,omitempty"`
-	Deleted     bool     `json:"Deleted,omitempty" bson:"Deleted,omitempty"`
+	Name        string   `json:"name,omitempty" bson:"Name,omitempty"`
+	Slug        string   `json:"slug,omitempty" bson:"Slug,omitempty"`
+	Description string   `json:"description,omitempty" bson:"Description,omitempty"`
+	OwnerID     string   `json:"owner_id,omitempty" bson:"OwnerID,omitempty"`
+	Members     []string `json:"members,omitempty" bson:"Members,omitempty"`
+	Deleted     bool     `json:"deleted,omitempty" bson:"Deleted,omitempty"`
 
 	// Audit logs for project actions
-	AuditLogs []AuditLog `json:"AuditLogs,omitempty" bson:"AuditLogs,omitempty"` // Logs of actions taken within the project
+	AuditLogs []AuditLog `json:"audit_logs,omitempty" bson:"AuditLogs,omitempty"` // Logs of actions taken within the project
 }
 
 // Validate validates the workspace struct

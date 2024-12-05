@@ -22,8 +22,8 @@ func (p *roles) UpdatePermission(id primitive.ObjectID, resource string, key str
 	permissionPath := fmt.Sprintf("permissions.%s.%s", resource, key)
 
 	updates := bson.M{
-		permissionPath:          value,
-		"updated_timestamp_utc": time.Now(),
+		permissionPath:        value,
+		"UpdatedTimestampUTC": time.Now(),
 	}
 
 	result, err := collection.UpdateOne(
@@ -55,7 +55,7 @@ func (p *roles) RemovePermission(id primitive.ObjectID, resource string, key str
 
 	updates := bson.M{
 		"$unset": bson.M{permissionPath: ""},
-		"$set":   bson.M{"updated_timestamp_utc": time.Now()},
+		"$set":   bson.M{"UpdatedTimestampUTC": time.Now()},
 	}
 
 	result, err := collection.UpdateOne(

@@ -12,17 +12,17 @@ type Permissions map[string]interface{}
 // Roles represents roles for a specific resource
 type Roles struct {
 	ID                  primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	OwnerID             string             `json:"owner_id,omitempty" bson:"owner_id,omitempty"`
-	ProjectID           primitive.ObjectID `json:"project_id,omitempty" bson:"project_id,omitempty"`
-	CreatedTimestampUTC time.Time          `json:"created_timestamp_utc,omitempty" bson:"created_timestamp_utc,omitempty"`
-	UpdatedTimestampUTC time.Time          `json:"updated_timestamp_utc,omitempty" bson:"updated_timestamp_utc,omitempty"`
+	OwnerID             string             `json:"owner_id,omitempty" bson:"OwnerID,omitempty"`
+	ProjectID           primitive.ObjectID `json:"project_id,omitempty" bson:"ProjectID,omitempty"`
+	CreatedTimestampUTC time.Time          `json:"created_timestamp_utc,omitempty" bson:"CreatedTimestampUTC,omitempty"`
+	UpdatedTimestampUTC time.Time          `json:"updated_timestamp_utc,omitempty" bson:"UpdatedTimestampUTC,omitempty"`
 
-	Role        string `json:"role,omitempty" bson:"role,omitempty"`
-	Description string `json:"description,omitempty" bson:"description,omitempty"`
+	Role        string `json:"role,omitempty" bson:"Role,omitempty"`
+	Description string `json:"description,omitempty" bson:"Description,omitempty"`
 
-	Permissions Permissions `json:"permissions,omitempty" bson:"permissions,omitempty"`
-	AuditLogs   []AuditLog  `json:"audit_logs,omitempty" bson:"audit_logs,omitempty"`
-	Deleted     bool        `json:"deleted,omitempty" bson:"deleted,omitempty"`
+	Permissions Permissions `json:"permissions,omitempty" bson:"Permissions,omitempty"`
+	AuditLogs   []AuditLog  `json:"audit_logs,omitempty" bson:"AuditLogs,omitempty"`
+	Deleted     bool        `json:"deleted,omitempty" bson:"Deleted,omitempty"`
 }
 
 // Validate validates the workspace struct
