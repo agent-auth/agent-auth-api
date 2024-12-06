@@ -12,7 +12,7 @@ type RolesDal interface {
 	Delete(id primitive.ObjectID) error
 	GetByProjectID(projectID primitive.ObjectID) ([]*dbmodels.Roles, error)
 	DeleteByProjectID(projectID primitive.ObjectID) error
-	GetByProjectIDAndName(projectID primitive.ObjectID, name string) (*dbmodels.Roles, error)
+	GetByProjectIDAndRole(projectID primitive.ObjectID, role string) (*dbmodels.Roles, error)
 
 	UpdatePermission(id primitive.ObjectID, resource string, actions []dbmodels.Action) error
 }

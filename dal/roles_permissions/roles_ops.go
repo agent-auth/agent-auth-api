@@ -43,7 +43,7 @@ func (p *roles) Create(role *dbmodels.Roles) (*dbmodels.Roles, error) {
 	)
 	defer cancel()
 
-	role.CreatedTimestampUTC = time.Now()
+	role.CreatedTimestampUTC = time.Now().UTC()
 	role.UpdatedTimestampUTC = role.CreatedTimestampUTC
 	role.Deleted = false
 
@@ -68,7 +68,7 @@ func (p *roles) Delete(id primitive.ObjectID) error {
 	update := bson.M{
 		"$set": bson.M{
 			"Deleted":             true,
-			"UpdatedTimestampUTC": time.Now(),
+			"UpdatedTimestampUTC": time.Now().UTC(),
 		},
 	}
 	result, err := collection.UpdateOne(ctx, bson.M{"_id": id}, update)
@@ -114,7 +114,7 @@ func (p *roles) DeleteByProjectID(projectID primitive.ObjectID) error {
 	update := bson.M{
 		"$set": bson.M{
 			"Deleted":             true,
-			"UpdatedTimestampUTC": time.Now(),
+			"UpdatedTimestampUTC": time.Now().UTC(),
 		},
 	}
 	result, err := collection.UpdateMany(ctx, bson.M{"project_id": projectID}, update)
@@ -153,8 +153,8 @@ func (p *roles) GetByProjectID(projectID primitive.ObjectID) ([]*dbmodels.Roles,
 	return roles, nil
 }
 
-// GetByProjectIDAndName retrieves a role by project ID and name
-func (p *roles) GetByProjectIDAndName(projectID primitive.ObjectID, name string) (*dbmodels.Roles, error) {
+// GetByProjectIDAndRole retrieves a role by project ID and role
+func (p *roles) GetByProjectIDAndRole(projectID primitive.ObjectID, r string) (*dbmodels.Roles, error) {
 	collection := p.db.Database().Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -165,7 +165,7 @@ func (p *roles) GetByProjectIDAndName(projectID primitive.ObjectID, name string)
 	var role dbmodels.Roles
 	err := collection.FindOne(ctx, bson.M{
 		"ProjectID": projectID,
-		"Name":      name,
+		"Role":      r,
 		"Deleted":   bson.M{"$ne": true},
 	}).Decode(&role)
 	if err != nil {

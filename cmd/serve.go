@@ -1,12 +1,13 @@
 package cmd
 
 import (
+	"context"
+
 	"github.com/agent-auth/agent-auth-api/database/connection"
 	"github.com/agent-auth/agent-auth-api/pkg/logger"
 	"github.com/agent-auth/agent-auth-api/pkg/redisdb"
 	"github.com/agent-auth/agent-auth-api/web/server"
 	"github.com/spf13/cobra"
-	"go.uber.org/zap"
 )
 
 // serveCmd represents the serve command
@@ -29,10 +30,7 @@ var serveCmd = &cobra.Command{
 
 		go func() {
 			logger.Info("Starting initial sync of roles")
-			err := redisdb.NewRedisRolesDal().InitialSync()
-			if err != nil {
-				logger.Fatal("Failed to sync roles", zap.Error(err))
-			}
+			redisdb.NewRedisRolesDal().SyncRolesCollection(context.Background())
 		}()
 
 		server := server.NewServer()

@@ -33,7 +33,7 @@ func (p *roles) UpdatePermission(id primitive.ObjectID, resource string, actions
 					fmt.Sprintf("Permissions.%s", resource): "",
 				},
 				"$set": bson.M{
-					"UpdatedTimestampUTC": time.Now(),
+					"UpdatedTimestampUTC": time.Now().UTC(),
 				},
 			},
 		)
@@ -45,7 +45,7 @@ func (p *roles) UpdatePermission(id primitive.ObjectID, resource string, actions
 			bson.M{
 				"$set": bson.M{
 					fmt.Sprintf("Permissions.%s.Actions", resource): actions,
-					"UpdatedTimestampUTC":                           time.Now(),
+					"UpdatedTimestampUTC":                           time.Now().UTC(),
 				},
 			},
 		)

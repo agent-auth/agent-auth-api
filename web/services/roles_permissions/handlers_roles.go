@@ -84,7 +84,7 @@ func (rp *rolesService) CreateRole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if role with same name already exists in the project
-	existingRole, err := rp.rolesDal.GetByProjectIDAndName(projectID, req.Roles.Role)
+	existingRole, err := rp.rolesDal.GetByProjectIDAndRole(projectID, req.Roles.Role)
 	if err == nil && existingRole != nil {
 		rp.logger.Error("role with same name already exists in project",
 			zap.String("name", req.Roles.Role),

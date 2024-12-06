@@ -83,7 +83,6 @@ func (r *resources) Update(resource *dbmodels.Resource) error {
 			"Description":         resource.Description,
 			"Actions":             resource.Actions,
 			"UpdatedTimestampUTC": time.Now().UTC(),
-			// Add any new mutable fields here
 		},
 	}
 
