@@ -12,4 +12,5 @@ type ResourcesDal interface {
 	GetByID(id primitive.ObjectID) (*dbmodels.Resource, error)
 	Delete(id primitive.ObjectID) error
 	GetByProjectID(projectID primitive.ObjectID) ([]*dbmodels.Resource, error)
+	GetByURNAndProjectID(urn string, projectID primitive.ObjectID) (*dbmodels.Resource, error)
 }

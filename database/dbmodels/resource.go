@@ -7,6 +7,16 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+// ResourceType represents the type of resource
+type ResourceType string
+
+// Resource types
+const (
+	ResourceTypeDatabase ResourceType = "db:mysql"
+	ResourceTypeAPI      ResourceType = "app:github"
+	ResourceTypeLLM      ResourceType = "llm:openai"
+)
+
 // Resource represents the resource model
 type Resource struct {
 	ID                  primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
@@ -16,8 +26,8 @@ type Resource struct {
 	OwnerID   string             `json:"owner_id,omitempty" bson:"OwnerID,omitempty"` // Project owner (user ID)
 	ProjectID primitive.ObjectID `json:"project_id,omitempty" bson:"ProjectID,omitempty"`
 
-	Type    string `json:"type,omitempty" bson:"Type,omitempty"`
-	Version string `json:"version,omitempty" bson:"Version,omitempty"`
+	Type    ResourceType `json:"type,omitempty" bson:"Type,omitempty"`
+	Version string       `json:"version,omitempty" bson:"Version,omitempty"`
 
 	Name        string   `json:"name,omitempty" bson:"Name"`
 	Description string   `json:"description,omitempty" bson:"Description"`
@@ -27,12 +37,6 @@ type Resource struct {
 	// Audit logs for project actions
 	AuditLogs []AuditLog `json:"audit_logs,omitempty" bson:"AuditLogs,omitempty"` // Logs of actions taken within the project
 	Deleted   bool       `json:"deleted,omitempty" bson:"Deleted,omitempty"`      // Flag to indicate if the project is deleted
-}
-
-// Action represents an action associated with a resource
-type Action struct {
-	Action      string `json:"action,omitempty" bson:"Action"`
-	Description string `json:"description,omitempty" bson:"Description,omitempty"`
 }
 
 // Validate validates the workspace struct

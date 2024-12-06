@@ -152,3 +152,25 @@ func (p *roles) GetByProjectID(projectID primitive.ObjectID) ([]*dbmodels.Roles,
 
 	return roles, nil
 }
+
+// GetByProjectIDAndName retrieves a role by project ID and name
+func (p *roles) GetByProjectIDAndName(projectID primitive.ObjectID, name string) (*dbmodels.Roles, error) {
+	collection := p.db.Database().Collection(p.collectionName)
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		time.Duration(p.queryTimeoutSeconds)*time.Second,
+	)
+	defer cancel()
+
+	var role dbmodels.Roles
+	err := collection.FindOne(ctx, bson.M{
+		"ProjectID": projectID,
+		"Name":      name,
+		"Deleted":   bson.M{"$ne": true},
+	}).Decode(&role)
+	if err != nil {
+		return nil, err
+	}
+
+	return &role, nil
+}

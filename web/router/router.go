@@ -146,7 +146,6 @@ func (router *router) Router(enableCORS bool) *chi.Mux {
 		r.With(authz.RequireRoles(authz.WorkspaceAdmin, authz.SystemAdmin, authz.AppAdmin, authz.AppDeveloper)).
 			Group(func(r chi.Router) {
 				r.Put("/{role_id}/permissions", router.rolesService.UpdatePermission)
-				r.Delete("/{role_id}/permissions", router.rolesService.RemovePermission)
 			})
 
 		r.With(authz.RequireRoles(

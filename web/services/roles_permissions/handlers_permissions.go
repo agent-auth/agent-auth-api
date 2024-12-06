@@ -19,7 +19,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param role_id path string true "Role ID"
-// @Param attribute body UpdateAttributeRequest true "Attribute update details"
+// @Param attribute body UpdatePermissionRequest true "Attribute update details"
 // @Success 204 "No Content"
 // @Failure 400 {object} errorinterface.ErrorResponse
 // @Failure 404 {object} errorinterface.ErrorResponse
@@ -48,7 +48,7 @@ func (rp *rolesService) UpdatePermission(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	var req UpdateAttributeRequest
+	var req UpdatePermissionRequest
 	if err := render.Bind(r, &req); err != nil {
 		msg := "invalid or incomplete request body"
 		rp.logger.Error(msg, zap.Error(err))
@@ -56,64 +56,23 @@ func (rp *rolesService) UpdatePermission(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err := rp.rolesDal.UpdatePermission(roleID, req.Resource, req.Path, req.Value); err != nil {
-		msg := "failed to update permission attribute"
+	// Add resource existence check
+	if resource, err := rp.resourcesDal.GetByURNAndProjectID(req.Resource, projectID); err != nil {
+		msg := "failed to verify resource existence"
 		rp.logger.Error(msg, zap.Error(err))
 		render.Render(w, r, renderers.ErrorInternalServerError(errors.New(msg)))
 		return
-	}
-
-	render.Status(r, http.StatusNoContent)
-}
-
-// @Summary Remove permission attribute
-// @Description Removes a specific attribute from a permission
-// @Tags permissions
-// @Accept json
-// @Produce json
-// @Param role_id path string true "Role ID"
-// @Param path path string true "Attribute path"
-// @Success 204 "No Content"
-// @Failure 400 {object} errorinterface.ErrorResponse
-// @Failure 404 {object} errorinterface.ErrorResponse
-// @Router /projects/{project_id}/roles/{role_id}/permissions [delete]
-// @Security BearerAuth
-func (rp *rolesService) RemovePermission(w http.ResponseWriter, r *http.Request) {
-	projectID, _, err := rp.hasMemberAccess(r)
-	if err != nil {
-		msg := "project membership verification failed"
-		rp.logger.Error(msg, zap.Error(err))
-		render.Render(w, r, renderers.ErrorForbidden(errors.New(msg)))
-		return
-	}
-
-	roleID, err := primitive.ObjectIDFromHex(chi.URLParam(r, "role_id"))
-	if err != nil {
-		msg := "invalid role ID format"
-		rp.logger.Error(msg, zap.Error(err))
-		render.Render(w, r, renderers.ErrorBadRequest(errors.New(msg)))
-		return
-	}
-
-	if err := rp.hasRoleAccess(roleID, projectID); err != nil {
-		msg := "role verification failed"
-		rp.logger.Error(msg, zap.Error(err))
-		render.Render(w, r, renderers.ErrorForbidden(fmt.Errorf(msg)))
-		return
-	}
-
-	var req UpdateAttributeRequest
-	if err := render.Bind(r, &req); err != nil {
-		msg := "invalid or incomplete request body"
-		rp.logger.Error(msg, zap.Error(err))
-		render.Render(w, r, renderers.ErrorBadRequest(errors.New(msg)))
-		return
-	}
-
-	if err := rp.rolesDal.RemovePermission(roleID, req.Resource, req.Path); err != nil {
-		msg := "failed to remove permission attribute"
-		rp.logger.Error(msg, zap.Error(err))
+	} else if resource == nil {
+		msg := fmt.Sprintf("resource with URN '%s' does not exist in the project", req.Resource)
+		rp.logger.Error(msg)
 		render.Render(w, r, renderers.ErrorNotFound(errors.New(msg)))
+		return
+	}
+
+	if err := rp.rolesDal.UpdatePermission(roleID, req.Resource, req.Actions); err != nil {
+		msg := "failed to update permission attribute"
+		rp.logger.Error(msg, zap.Error(err))
+		render.Render(w, r, renderers.ErrorInternalServerError(errors.New(msg)))
 		return
 	}
 

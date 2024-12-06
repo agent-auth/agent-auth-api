@@ -14,7 +14,6 @@ type RolesService interface {
 	DeleteRolesByProject(w http.ResponseWriter, r *http.Request)
 
 	UpdatePermission(w http.ResponseWriter, r *http.Request)
-	RemovePermission(w http.ResponseWriter, r *http.Request)
 }
 
 // The list of error types presented to the end user

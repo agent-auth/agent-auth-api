@@ -10,6 +10,7 @@ import (
 	"github.com/agent-auth/agent-auth-api/database/connection"
 	"github.com/agent-auth/agent-auth-api/database/dbmodels"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -195,4 +196,34 @@ func (r *resources) GetByProjectID(projectID primitive.ObjectID) ([]*dbmodels.Re
 	}
 
 	return resources, nil
+}
+
+// GetByURNAndProjectID retrieves a resource by URN and project ID
+func (r *resources) GetByURNAndProjectID(urn string, projectID primitive.ObjectID) (*dbmodels.Resource, error) {
+	if projectID.IsZero() {
+		return nil, fmt.Errorf("invalid project ID")
+	}
+	collection := r.db.Database().Collection(r.collectionName)
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		time.Duration(r.queryTimeoutSeconds)*time.Second,
+	)
+	defer cancel()
+
+	var resource dbmodels.Resource
+
+	filter := bson.M{
+		"URN":       urn,
+		"ProjectID": projectID,
+	}
+
+	err := collection.FindOne(ctx, filter).Decode(&resource)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &resource, nil
 }

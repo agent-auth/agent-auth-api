@@ -61,6 +61,16 @@ func (rs *resourceService) Create(w http.ResponseWriter, r *http.Request) {
 	resource.Resource.ProjectID = project_id
 	resource.Resource.OwnerID = email
 
+	// Check if resource with same URN exists in the project
+	existing, err := rs.resources_dal.GetByURNAndProjectID(resource.Resource.URN, project_id)
+	if err == nil && existing != nil {
+		rs.logger.Error("resource with this URN already exists in project",
+			zap.String("urn", resource.Resource.URN),
+			zap.String("project_id", project_id.Hex()))
+		render.Render(w, r, renderers.ErrorBadRequest(errors.New("resource with this URN or name already exists in project")))
+		return
+	}
+
 	if err := resource.Resource.Validate(); err != nil {
 		rs.logger.Error("invalid resource data", zap.Error(err))
 		render.Render(w, r, renderers.ErrorBadRequest(errors.New("invalid resource data")))

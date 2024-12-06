@@ -7,7 +7,16 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-type Permissions map[string]interface{}
+// Action represents an action associated with a resource
+type Action struct {
+	Action      string   `json:"action,omitempty" bson:"Action"`
+	Description string   `json:"description,omitempty" bson:"Description,omitempty"`
+	Actions     []Action `json:"actions,omitempty" bson:"Actions,omitempty"`
+}
+
+type Permission struct {
+	Actions []Action `json:"actions,omitempty" bson:"Actions,omitempty"`
+}
 
 // Roles represents roles for a specific resource
 type Roles struct {
@@ -20,9 +29,9 @@ type Roles struct {
 	Role        string `json:"role,omitempty" bson:"Role,omitempty"`
 	Description string `json:"description,omitempty" bson:"Description,omitempty"`
 
-	Permissions Permissions `json:"permissions,omitempty" bson:"Permissions,omitempty"`
-	AuditLogs   []AuditLog  `json:"audit_logs,omitempty" bson:"AuditLogs,omitempty"`
-	Deleted     bool        `json:"deleted,omitempty" bson:"Deleted,omitempty"`
+	Permissions map[string]Permission `json:"permissions,omitempty" bson:"Permissions,omitempty"`
+	AuditLogs   []AuditLog            `json:"audit_logs,omitempty" bson:"AuditLogs,omitempty"`
+	Deleted     bool                  `json:"deleted,omitempty" bson:"Deleted,omitempty"`
 }
 
 // Validate validates the workspace struct

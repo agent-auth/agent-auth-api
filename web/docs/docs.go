@@ -1032,59 +1032,8 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/roles_permissions.UpdateAttributeRequest"
+                            "$ref": "#/definitions/roles_permissions.UpdatePermissionRequest"
                         }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/errorinterface.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/errorinterface.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Removes a specific attribute from a permission",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "permissions"
-                ],
-                "summary": "Remove permission attribute",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Role ID",
-                        "name": "role_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Attribute path",
-                        "name": "path",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -1837,6 +1786,12 @@ const docTemplate = `{
                 "action": {
                     "type": "string"
                 },
+                "actions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dbmodels.Action"
+                    }
+                },
                 "description": {
                     "type": "string"
                 }
@@ -1845,76 +1800,83 @@ const docTemplate = `{
         "dbmodels.AuditLog": {
             "type": "object",
             "properties": {
-                "Action": {
+                "action": {
                     "description": "Action taken (e.g., \"Created Task\", \"Updated Milestone\")",
                     "type": "string"
                 },
-                "Details": {
+                "details": {
                     "description": "Detailed description of the action",
                     "type": "string"
                 },
-                "Timestamp": {
+                "timestamp": {
                     "description": "When the action was performed",
                     "type": "string"
                 },
-                "UserID": {
+                "user_id": {
                     "description": "The user who performed the action",
                     "type": "string"
                 }
             }
         },
-        "dbmodels.Permissions": {
+        "dbmodels.Permission": {
             "type": "object",
-            "additionalProperties": true
+            "properties": {
+                "actions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dbmodels.Action"
+                    }
+                }
+            }
         },
         "dbmodels.Project": {
             "type": "object",
             "properties": {
-                "AuditLogs": {
+                "audit_logs": {
                     "description": "Audit logs for project actions",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/dbmodels.AuditLog"
                     }
                 },
-                "CreatedTimestampUTC": {
+                "created_timestamp_utc": {
                     "type": "string"
                 },
-                "Deleted": {
+                "deleted": {
                     "description": "Flag to indicate if the project is deleted",
                     "type": "boolean"
                 },
-                "Description": {
+                "description": {
                     "description": "Description of the project",
                     "type": "string"
                 },
-                "Members": {
+                "id": {
+                    "type": "string"
+                },
+                "members": {
                     "description": "List of member IDs associated with the project",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "Name": {
+                "name": {
                     "description": "Project details",
                     "type": "string"
                 },
-                "OwnerID": {
+                "owner_id": {
                     "description": "Project owner (user ID)",
                     "type": "string"
                 },
-                "Slug": {
+                "slug": {
                     "description": "Slug for unique URL identification",
                     "type": "string"
                 },
-                "UpdatedTimestampUTC": {
+                "updated_timestamp_utc": {
                     "type": "string"
                 },
-                "WorkspaceID": {
+                "workspace_id": {
                     "description": "Reference to the workspace it belongs to",
-                    "type": "string"
-                },
-                "id": {
                     "type": "string"
                 }
             }
@@ -1959,7 +1921,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "$ref": "#/definitions/dbmodels.ResourceType"
                 },
                 "updated_timestamp_utc": {
                     "type": "string"
@@ -1972,45 +1934,58 @@ const docTemplate = `{
                 }
             }
         },
+        "dbmodels.ResourceType": {
+            "type": "string",
+            "enum": [
+                "db:mysql",
+                "app:github",
+                "llm:openai"
+            ],
+            "x-enum-varnames": [
+                "ResourceTypeDatabase",
+                "ResourceTypeAPI",
+                "ResourceTypeLLM"
+            ]
+        },
         "dbmodels.Workspace": {
             "type": "object",
             "properties": {
-                "AuditLogs": {
+                "audit_logs": {
                     "description": "Audit logs for project actions",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/dbmodels.AuditLog"
                     }
                 },
-                "CreatedTimestampUTC": {
+                "created_timestamp_utc": {
                     "type": "string"
                 },
-                "Deleted": {
+                "deleted": {
                     "type": "boolean"
                 },
-                "Description": {
+                "description": {
                     "type": "string"
                 },
-                "Members": {
+                "id": {
+                    "type": "string"
+                },
+                "members": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "Name": {
+                "name": {
                     "description": "Workspace details",
                     "type": "string"
                 },
-                "OwnerID": {
+                "owner_id": {
                     "type": "string"
                 },
-                "Slug": {
+                "slug": {
                     "type": "string"
                 },
-                "UpdatedTimestampUTC": {
-                    "type": "string"
-                },
-                "id": {
+                "updated_timestamp_utc": {
                     "type": "string"
                 }
             }
@@ -2317,51 +2292,51 @@ const docTemplate = `{
         "projects.ProjectRequest": {
             "type": "object",
             "properties": {
-                "AuditLogs": {
+                "audit_logs": {
                     "description": "Audit logs for project actions",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/dbmodels.AuditLog"
                     }
                 },
-                "CreatedTimestampUTC": {
+                "created_timestamp_utc": {
                     "type": "string"
                 },
-                "Deleted": {
+                "deleted": {
                     "description": "Flag to indicate if the project is deleted",
                     "type": "boolean"
                 },
-                "Description": {
+                "description": {
                     "description": "Description of the project",
                     "type": "string"
                 },
-                "Members": {
+                "id": {
+                    "type": "string"
+                },
+                "members": {
                     "description": "List of member IDs associated with the project",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "Name": {
+                "name": {
                     "description": "Project details",
                     "type": "string"
                 },
-                "OwnerID": {
+                "owner_id": {
                     "description": "Project owner (user ID)",
                     "type": "string"
                 },
-                "Slug": {
+                "slug": {
                     "description": "Slug for unique URL identification",
                     "type": "string"
                 },
-                "UpdatedTimestampUTC": {
+                "updated_timestamp_utc": {
                     "type": "string"
                 },
-                "WorkspaceID": {
+                "workspace_id": {
                     "description": "Reference to the workspace it belongs to",
-                    "type": "string"
-                },
-                "id": {
                     "type": "string"
                 }
             }
@@ -2369,51 +2344,51 @@ const docTemplate = `{
         "projects.ProjectResponse": {
             "type": "object",
             "properties": {
-                "AuditLogs": {
+                "audit_logs": {
                     "description": "Audit logs for project actions",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/dbmodels.AuditLog"
                     }
                 },
-                "CreatedTimestampUTC": {
+                "created_timestamp_utc": {
                     "type": "string"
                 },
-                "Deleted": {
+                "deleted": {
                     "description": "Flag to indicate if the project is deleted",
                     "type": "boolean"
                 },
-                "Description": {
+                "description": {
                     "description": "Description of the project",
                     "type": "string"
                 },
-                "Members": {
+                "id": {
+                    "type": "string"
+                },
+                "members": {
                     "description": "List of member IDs associated with the project",
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "Name": {
+                "name": {
                     "description": "Project details",
                     "type": "string"
                 },
-                "OwnerID": {
+                "owner_id": {
                     "description": "Project owner (user ID)",
                     "type": "string"
                 },
-                "Slug": {
+                "slug": {
                     "description": "Slug for unique URL identification",
                     "type": "string"
                 },
-                "UpdatedTimestampUTC": {
+                "updated_timestamp_utc": {
                     "type": "string"
                 },
-                "WorkspaceID": {
+                "workspace_id": {
                     "description": "Reference to the workspace it belongs to",
-                    "type": "string"
-                },
-                "id": {
                     "type": "string"
                 }
             }
@@ -2469,7 +2444,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "$ref": "#/definitions/dbmodels.ResourceType"
                 },
                 "updated_timestamp_utc": {
                     "type": "string"
@@ -2522,7 +2497,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
-                    "type": "string"
+                    "$ref": "#/definitions/dbmodels.ResourceType"
                 },
                 "updated_timestamp_utc": {
                     "type": "string"
@@ -2571,7 +2546,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "permissions": {
-                    "$ref": "#/definitions/dbmodels.Permissions"
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/dbmodels.Permission"
+                    }
                 },
                 "project_id": {
                     "type": "string"
@@ -2609,7 +2587,10 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "permissions": {
-                    "$ref": "#/definitions/dbmodels.Permissions"
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/dbmodels.Permission"
+                    }
                 },
                 "project_id": {
                     "type": "string"
@@ -2622,16 +2603,18 @@ const docTemplate = `{
                 }
             }
         },
-        "roles_permissions.UpdateAttributeRequest": {
+        "roles_permissions.UpdatePermissionRequest": {
             "type": "object",
             "properties": {
-                "path": {
-                    "type": "string"
+                "actions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dbmodels.Action"
+                    }
                 },
                 "resource": {
                     "type": "string"
-                },
-                "value": {}
+                }
             }
         },
         "workspaces.AddMemberRequest": {
@@ -2646,42 +2629,42 @@ const docTemplate = `{
             "description": "Workspace request model",
             "type": "object",
             "properties": {
-                "AuditLogs": {
+                "audit_logs": {
                     "description": "Audit logs for project actions",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/dbmodels.AuditLog"
                     }
                 },
-                "CreatedTimestampUTC": {
+                "created_timestamp_utc": {
                     "type": "string"
                 },
-                "Deleted": {
+                "deleted": {
                     "type": "boolean"
                 },
-                "Description": {
+                "description": {
                     "type": "string"
                 },
-                "Members": {
+                "id": {
+                    "type": "string"
+                },
+                "members": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "Name": {
+                "name": {
                     "description": "Workspace details",
                     "type": "string"
                 },
-                "OwnerID": {
+                "owner_id": {
                     "type": "string"
                 },
-                "Slug": {
+                "slug": {
                     "type": "string"
                 },
-                "UpdatedTimestampUTC": {
-                    "type": "string"
-                },
-                "id": {
+                "updated_timestamp_utc": {
                     "type": "string"
                 }
             }
@@ -2690,42 +2673,42 @@ const docTemplate = `{
             "description": "Workspace response model",
             "type": "object",
             "properties": {
-                "AuditLogs": {
+                "audit_logs": {
                     "description": "Audit logs for project actions",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/dbmodels.AuditLog"
                     }
                 },
-                "CreatedTimestampUTC": {
+                "created_timestamp_utc": {
                     "type": "string"
                 },
-                "Deleted": {
+                "deleted": {
                     "type": "boolean"
                 },
-                "Description": {
+                "description": {
                     "type": "string"
                 },
-                "Members": {
+                "id": {
+                    "type": "string"
+                },
+                "members": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "Name": {
+                "name": {
                     "description": "Workspace details",
                     "type": "string"
                 },
-                "OwnerID": {
+                "owner_id": {
                     "type": "string"
                 },
-                "Slug": {
+                "slug": {
                     "type": "string"
                 },
-                "UpdatedTimestampUTC": {
-                    "type": "string"
-                },
-                "id": {
+                "updated_timestamp_utc": {
                     "type": "string"
                 }
             }

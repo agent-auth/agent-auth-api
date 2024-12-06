@@ -1,6 +1,7 @@
 package roles_permissions
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -11,6 +12,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 )
 
@@ -27,21 +29,13 @@ type RoleResponse struct {
 	*dbmodels.Roles
 }
 
-type UpdateAttributeRequest struct {
-	Resource string      `json:"resource"`
-	Path     string      `json:"path"`
-	Value    interface{} `json:"value"`
+type UpdatePermissionRequest struct {
+	Resource string            `json:"resource"`
+	Actions  []dbmodels.Action `json:"actions"`
 }
 
-func (u *UpdateAttributeRequest) Bind(r *http.Request) error {
+func (u *UpdatePermissionRequest) Bind(r *http.Request) error {
 	if u.Resource == "" {
-		return ErrIncompleteDetails
-	}
-	if u.Path == "" {
-		return ErrIncompleteDetails
-	}
-
-	if u.Value == nil {
 		return ErrIncompleteDetails
 	}
 
@@ -81,11 +75,28 @@ func (rp *rolesService) CreateRole(w http.ResponseWriter, r *http.Request) {
 
 	req.Roles.ProjectID = projectID
 	req.Roles.OwnerID = email
-	req.Roles.Permissions = dbmodels.Permissions{}
+	req.Roles.Permissions = map[string]dbmodels.Permission{}
 
 	if err := req.Roles.Validate(); err != nil {
 		rp.logger.Error("invalid role details", zap.Error(err))
 		render.Render(w, r, renderers.ErrorBadRequest(err))
+		return
+	}
+
+	// Check if role with same name already exists in the project
+	existingRole, err := rp.rolesDal.GetByProjectIDAndName(projectID, req.Roles.Role)
+	if err == nil && existingRole != nil {
+		rp.logger.Error("role with same name already exists in project",
+			zap.String("name", req.Roles.Role),
+			zap.String("projectID", projectID.Hex()))
+		render.Render(w, r, renderers.ErrorBadRequest(fmt.Errorf("role with name '%s' already exists in this project", req.Roles.Role)))
+		return
+	}
+
+	// Only proceed if the error is "not found"
+	if err != nil && !errors.Is(err, mongo.ErrNoDocuments) {
+		rp.logger.Error("failed to check for existing role", zap.Error(err))
+		render.Render(w, r, renderers.ErrorInternalServerError(err))
 		return
 	}
 
