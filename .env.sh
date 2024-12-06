@@ -9,6 +9,10 @@ export MONGODB_URI="mongodb://localhost:27017"
 export MONGODB_DATABASE="agent-auth"
 export MONGODB_QUERY_TIMEOUT_SECONDS="5"
 
+export REDIS_URI="localhost:6379"
+export REDIS_QUERY_TIMEOUT_SECONDS="5"
+export REDIS_SYNC_INTERVAL="10"
+
 export DB_PROJECTS_COLLECTION="projects"
 export DB_WORKSPACES_COLLECTION="workspaces"
 export DB_ROLES_COLLECTION="roles"
