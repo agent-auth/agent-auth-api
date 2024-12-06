@@ -6,6 +6,7 @@ import (
 	"github.com/agent-auth/agent-auth-api/pkg/redisdb"
 	"github.com/agent-auth/agent-auth-api/web/server"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 )
 
 // serveCmd represents the serve command
@@ -14,18 +15,24 @@ var serveCmd = &cobra.Command{
 	Short: "start http server with configured api",
 	Long:  `Starts a http server and serves the configured api`,
 	Run: func(cmd *cobra.Command, args []string) {
-
 		logger := logger.NewLogger()
 
 		go func() {
-			logger.Info("Starting initial sync of roles")
-			rolesDal := redisdb.NewRedisRolesDal()
-			rolesDal.InitialSync()
+			logger.Info("Starting redis client")
+			_ = redisdb.NewRedisStore()
 		}()
 
 		go func() {
 			logger.Info("Starting mongo client")
 			_ = connection.NewMongoStore()
+		}()
+
+		go func() {
+			logger.Info("Starting initial sync of roles")
+			err := redisdb.NewRedisRolesDal().InitialSync()
+			if err != nil {
+				logger.Fatal("Failed to sync roles", zap.Error(err))
+			}
 		}()
 
 		server := server.NewServer()
