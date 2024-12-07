@@ -6,15 +6,15 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/agent-auth/agent-auth-api/database/dbmodels"
 	"github.com/agent-auth/agent-auth-api/pkg/authz"
 	"github.com/agent-auth/agent-auth-api/web/renderers"
+	"github.com/agent-auth/common-lib/models"
 	"github.com/go-chi/render"
 	"go.uber.org/zap"
 )
 
 type ProjectRequest struct {
-	*dbmodels.Project
+	*models.Project
 }
 
 func (p *ProjectRequest) Bind(r *http.Request) error {
@@ -28,11 +28,11 @@ func (p *ProjectRequest) Bind(r *http.Request) error {
 }
 
 type ProjectResponse struct {
-	*dbmodels.Project
+	*models.Project
 }
 
 type ProjectsResponse struct {
-	Projects []*dbmodels.Project `json:"projects"`
+	Projects []*models.Project `json:"projects"`
 }
 
 type AddMemberRequest struct {
@@ -61,7 +61,7 @@ func (ps *projectService) Create(w http.ResponseWriter, r *http.Request) {
 	email, _ := authz.GetEmailFromClaims(r)
 
 	project := &ProjectRequest{
-		Project: &dbmodels.Project{},
+		Project: &models.Project{},
 	}
 
 	if err := render.Bind(r, project); err != nil {
@@ -198,7 +198,7 @@ func (ps *projectService) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Bind and validate update request
-	updateReq := &ProjectRequest{Project: &dbmodels.Project{}}
+	updateReq := &ProjectRequest{Project: &models.Project{}}
 	if err := render.Bind(r, updateReq); err != nil {
 		ps.logger.Error("failed to bind project request", zap.Error(err))
 		render.Render(w, r, renderers.ErrorBadRequest(errors.New("failed to bind project request")))

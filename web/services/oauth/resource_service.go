@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/agent-auth/agent-auth-api/pkg/keycloak"
-	"github.com/agent-auth/agent-auth-api/pkg/logger"
 	"github.com/agent-auth/agent-auth-api/web/renderers"
+	"github.com/agent-auth/common-lib/pkg/logger"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"go.uber.org/zap"

@@ -1,150 +1,5 @@
 basePath: /
 definitions:
-  dbmodels.Action:
-    properties:
-      action:
-        type: string
-      actions:
-        items:
-          $ref: '#/definitions/dbmodels.Action'
-        type: array
-      description:
-        type: string
-    type: object
-  dbmodels.AuditLog:
-    properties:
-      action:
-        description: Action taken (e.g., "Created Task", "Updated Milestone")
-        type: string
-      details:
-        description: Detailed description of the action
-        type: string
-      timestamp:
-        description: When the action was performed
-        type: string
-      user_id:
-        description: The user who performed the action
-        type: string
-    type: object
-  dbmodels.Permission:
-    properties:
-      actions:
-        items:
-          $ref: '#/definitions/dbmodels.Action'
-        type: array
-    type: object
-  dbmodels.Project:
-    properties:
-      audit_logs:
-        description: Audit logs for project actions
-        items:
-          $ref: '#/definitions/dbmodels.AuditLog'
-        type: array
-      created_timestamp_utc:
-        type: string
-      deleted:
-        description: Flag to indicate if the project is deleted
-        type: boolean
-      description:
-        description: Description of the project
-        type: string
-      id:
-        type: string
-      members:
-        description: List of member IDs associated with the project
-        items:
-          type: string
-        type: array
-      name:
-        description: Project details
-        type: string
-      owner_id:
-        description: Project owner (user ID)
-        type: string
-      slug:
-        description: Slug for unique URL identification
-        type: string
-      updated_timestamp_utc:
-        type: string
-      workspace_id:
-        description: Reference to the workspace it belongs to
-        type: string
-    type: object
-  dbmodels.Resource:
-    properties:
-      actions:
-        items:
-          $ref: '#/definitions/dbmodels.Action'
-        type: array
-      audit_logs:
-        description: Audit logs for project actions
-        items:
-          $ref: '#/definitions/dbmodels.AuditLog'
-        type: array
-      created_timestamp_utc:
-        type: string
-      deleted:
-        description: Flag to indicate if the project is deleted
-        type: boolean
-      description:
-        type: string
-      id:
-        type: string
-      name:
-        type: string
-      owner_id:
-        description: Project owner (user ID)
-        type: string
-      project_id:
-        type: string
-      type:
-        $ref: '#/definitions/dbmodels.ResourceType'
-      updated_timestamp_utc:
-        type: string
-      urn:
-        type: string
-      version:
-        type: string
-    type: object
-  dbmodels.ResourceType:
-    enum:
-    - db:mysql
-    - app:github
-    - llm:openai
-    type: string
-    x-enum-varnames:
-    - ResourceTypeDatabase
-    - ResourceTypeAPI
-    - ResourceTypeLLM
-  dbmodels.Workspace:
-    properties:
-      audit_logs:
-        description: Audit logs for project actions
-        items:
-          $ref: '#/definitions/dbmodels.AuditLog'
-        type: array
-      created_timestamp_utc:
-        type: string
-      deleted:
-        type: boolean
-      description:
-        type: string
-      id:
-        type: string
-      members:
-        items:
-          type: string
-        type: array
-      name:
-        description: Workspace details
-        type: string
-      owner_id:
-        type: string
-      slug:
-        type: string
-      updated_timestamp_utc:
-        type: string
-    type: object
   errorinterface.ErrorResponse:
     properties:
       code:
@@ -156,59 +11,6 @@ definitions:
       status:
         description: user-level status message
         type: string
-    type: object
-  healthinterface.Health:
-    properties:
-      inboundInterfaces:
-        items:
-          $ref: '#/definitions/healthinterface.InboundInterface'
-        type: array
-      outboundInterfaces:
-        items:
-          $ref: '#/definitions/healthinterface.OutboundInterface'
-        type: array
-      serviceName:
-        type: string
-      serviceProvider:
-        type: string
-      serviceStartTimeUTC:
-        type: string
-      serviceStatus:
-        type: string
-      serviceVersion:
-        type: string
-      timeStampUTC:
-        type: string
-      uptime:
-        type: number
-    type: object
-  healthinterface.InboundInterface:
-    properties:
-      address:
-        type: string
-      applicationName:
-        type: string
-      connectionStatus:
-        type: string
-      hostname:
-        type: string
-      os:
-        type: string
-      timeStampUTC:
-        type: string
-    type: object
-  healthinterface.OutboundInterface:
-    properties:
-      applicationName:
-        type: string
-      connectionStatus:
-        type: string
-      timeStampUTC:
-        type: string
-      urls:
-        items:
-          type: string
-        type: array
     type: object
   keycloak.PolicyRepresentation:
     properties:
@@ -274,6 +76,151 @@ definitions:
         items:
           $ref: '#/definitions/keycloak.ResourceRepresentation'
         type: array
+    type: object
+  models.Action:
+    properties:
+      action:
+        type: string
+      actions:
+        items:
+          $ref: '#/definitions/models.Action'
+        type: array
+      description:
+        type: string
+    type: object
+  models.AuditLog:
+    properties:
+      action:
+        description: Action taken (e.g., "Created Task", "Updated Milestone")
+        type: string
+      details:
+        description: Detailed description of the action
+        type: string
+      timestamp:
+        description: When the action was performed
+        type: string
+      user_id:
+        description: The user who performed the action
+        type: string
+    type: object
+  models.Permission:
+    properties:
+      actions:
+        items:
+          $ref: '#/definitions/models.Action'
+        type: array
+    type: object
+  models.Project:
+    properties:
+      audit_logs:
+        description: Audit logs for project actions
+        items:
+          $ref: '#/definitions/models.AuditLog'
+        type: array
+      created_timestamp_utc:
+        type: string
+      deleted:
+        description: Flag to indicate if the project is deleted
+        type: boolean
+      description:
+        description: Description of the project
+        type: string
+      id:
+        type: string
+      members:
+        description: List of member IDs associated with the project
+        items:
+          type: string
+        type: array
+      name:
+        description: Project details
+        type: string
+      owner_id:
+        description: Project owner (user ID)
+        type: string
+      slug:
+        description: Slug for unique URL identification
+        type: string
+      updated_timestamp_utc:
+        type: string
+      workspace_id:
+        description: Reference to the workspace it belongs to
+        type: string
+    type: object
+  models.Resource:
+    properties:
+      actions:
+        items:
+          $ref: '#/definitions/models.Action'
+        type: array
+      audit_logs:
+        description: Audit logs for project actions
+        items:
+          $ref: '#/definitions/models.AuditLog'
+        type: array
+      created_timestamp_utc:
+        type: string
+      deleted:
+        description: Flag to indicate if the project is deleted
+        type: boolean
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      owner_id:
+        description: Project owner (user ID)
+        type: string
+      project_id:
+        type: string
+      type:
+        $ref: '#/definitions/models.ResourceType'
+      updated_timestamp_utc:
+        type: string
+      urn:
+        type: string
+      version:
+        type: string
+    type: object
+  models.ResourceType:
+    enum:
+    - db:mysql
+    - app:github
+    - llm:openai
+    type: string
+    x-enum-varnames:
+    - ResourceTypeDatabase
+    - ResourceTypeAPI
+    - ResourceTypeLLM
+  models.Workspace:
+    properties:
+      audit_logs:
+        description: Audit logs for project actions
+        items:
+          $ref: '#/definitions/models.AuditLog'
+        type: array
+      created_timestamp_utc:
+        type: string
+      deleted:
+        type: boolean
+      description:
+        type: string
+      id:
+        type: string
+      members:
+        items:
+          type: string
+        type: array
+      name:
+        description: Workspace details
+        type: string
+      owner_id:
+        type: string
+      slug:
+        type: string
+      updated_timestamp_utc:
+        type: string
     type: object
   oauth.ResourceRequest:
     properties:
@@ -347,7 +294,7 @@ definitions:
       audit_logs:
         description: Audit logs for project actions
         items:
-          $ref: '#/definitions/dbmodels.AuditLog'
+          $ref: '#/definitions/models.AuditLog'
         type: array
       created_timestamp_utc:
         type: string
@@ -384,7 +331,7 @@ definitions:
       audit_logs:
         description: Audit logs for project actions
         items:
-          $ref: '#/definitions/dbmodels.AuditLog'
+          $ref: '#/definitions/models.AuditLog'
         type: array
       created_timestamp_utc:
         type: string
@@ -420,19 +367,19 @@ definitions:
     properties:
       projects:
         items:
-          $ref: '#/definitions/dbmodels.Project'
+          $ref: '#/definitions/models.Project'
         type: array
     type: object
   resources.ResourceRequest:
     properties:
       actions:
         items:
-          $ref: '#/definitions/dbmodels.Action'
+          $ref: '#/definitions/models.Action'
         type: array
       audit_logs:
         description: Audit logs for project actions
         items:
-          $ref: '#/definitions/dbmodels.AuditLog'
+          $ref: '#/definitions/models.AuditLog'
         type: array
       created_timestamp_utc:
         type: string
@@ -451,7 +398,7 @@ definitions:
       project_id:
         type: string
       type:
-        $ref: '#/definitions/dbmodels.ResourceType'
+        $ref: '#/definitions/models.ResourceType'
       updated_timestamp_utc:
         type: string
       urn:
@@ -463,12 +410,12 @@ definitions:
     properties:
       actions:
         items:
-          $ref: '#/definitions/dbmodels.Action'
+          $ref: '#/definitions/models.Action'
         type: array
       audit_logs:
         description: Audit logs for project actions
         items:
-          $ref: '#/definitions/dbmodels.AuditLog'
+          $ref: '#/definitions/models.AuditLog'
         type: array
       created_timestamp_utc:
         type: string
@@ -487,7 +434,7 @@ definitions:
       project_id:
         type: string
       type:
-        $ref: '#/definitions/dbmodels.ResourceType'
+        $ref: '#/definitions/models.ResourceType'
       updated_timestamp_utc:
         type: string
       urn:
@@ -499,14 +446,14 @@ definitions:
     properties:
       resources:
         items:
-          $ref: '#/definitions/dbmodels.Resource'
+          $ref: '#/definitions/models.Resource'
         type: array
     type: object
   roles_permissions.RoleRequest:
     properties:
       audit_logs:
         items:
-          $ref: '#/definitions/dbmodels.AuditLog'
+          $ref: '#/definitions/models.AuditLog'
         type: array
       created_timestamp_utc:
         type: string
@@ -520,7 +467,7 @@ definitions:
         type: string
       permissions:
         additionalProperties:
-          $ref: '#/definitions/dbmodels.Permission'
+          $ref: '#/definitions/models.Permission'
         type: object
       project_id:
         type: string
@@ -533,7 +480,7 @@ definitions:
     properties:
       audit_logs:
         items:
-          $ref: '#/definitions/dbmodels.AuditLog'
+          $ref: '#/definitions/models.AuditLog'
         type: array
       created_timestamp_utc:
         type: string
@@ -547,7 +494,7 @@ definitions:
         type: string
       permissions:
         additionalProperties:
-          $ref: '#/definitions/dbmodels.Permission'
+          $ref: '#/definitions/models.Permission'
         type: object
       project_id:
         type: string
@@ -560,7 +507,7 @@ definitions:
     properties:
       actions:
         items:
-          $ref: '#/definitions/dbmodels.Action'
+          $ref: '#/definitions/models.Action'
         type: array
       resource:
         type: string
@@ -576,7 +523,7 @@ definitions:
       audit_logs:
         description: Audit logs for project actions
         items:
-          $ref: '#/definitions/dbmodels.AuditLog'
+          $ref: '#/definitions/models.AuditLog'
         type: array
       created_timestamp_utc:
         type: string
@@ -606,7 +553,7 @@ definitions:
       audit_logs:
         description: Audit logs for project actions
         items:
-          $ref: '#/definitions/dbmodels.AuditLog'
+          $ref: '#/definitions/models.AuditLog'
         type: array
       created_timestamp_utc:
         type: string
@@ -635,7 +582,7 @@ definitions:
     properties:
       workspaces:
         items:
-          $ref: '#/definitions/dbmodels.Workspace'
+          $ref: '#/definitions/models.Workspace'
         type: array
     type: object
 host: localhost:8002
@@ -862,20 +809,12 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/healthinterface.Health'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
         "404":
           description: Not Found
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
         "500":
           description: Internal Server Error
-          schema:
-            $ref: '#/definitions/errorinterface.ErrorResponse'
       summary: Get health of the service
       tags:
       - health

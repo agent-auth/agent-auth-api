@@ -3,10 +3,11 @@ package cmd
 import (
 	"context"
 
-	"github.com/agent-auth/agent-auth-api/database/connection"
-	"github.com/agent-auth/agent-auth-api/pkg/logger"
-	"github.com/agent-auth/agent-auth-api/pkg/redisdb"
+	"github.com/agent-auth/agent-auth-api/db/mongodb"
+	"github.com/agent-auth/agent-auth-api/db/redis_dal"
+	"github.com/agent-auth/agent-auth-api/db/redisdb"
 	"github.com/agent-auth/agent-auth-api/web/server"
+	"github.com/agent-auth/common-lib/pkg/logger"
 	"github.com/spf13/cobra"
 )
 
@@ -19,18 +20,18 @@ var serveCmd = &cobra.Command{
 		logger := logger.NewLogger()
 
 		go func() {
-			logger.Info("Starting redis client")
-			_ = redisdb.NewRedisStore()
+			logger.Info("Starting mongo client")
+			_ = mongodb.NewMongoClient()
 		}()
 
 		go func() {
-			logger.Info("Starting mongo client")
-			_ = connection.NewMongoStore()
+			logger.Info("Starting redis client")
+			_ = redisdb.NewRedisClient()
 		}()
 
 		go func() {
 			logger.Info("Starting initial sync of roles")
-			redisdb.NewRedisRolesDal().SyncRolesCollection(context.Background())
+			redis_dal.NewRedisRolesDal().SyncRolesCollection(context.Background())
 		}()
 
 		server := server.NewServer()

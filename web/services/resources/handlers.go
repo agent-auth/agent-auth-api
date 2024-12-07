@@ -4,8 +4,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/agent-auth/agent-auth-api/database/dbmodels"
 	"github.com/agent-auth/agent-auth-api/web/renderers"
+	"github.com/agent-auth/common-lib/models"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -13,7 +13,7 @@ import (
 )
 
 type ResourceRequest struct {
-	*dbmodels.Resource
+	*models.Resource
 }
 
 func (r *ResourceRequest) Bind(req *http.Request) error {
@@ -21,11 +21,11 @@ func (r *ResourceRequest) Bind(req *http.Request) error {
 }
 
 type ResourceResponse struct {
-	*dbmodels.Resource
+	*models.Resource
 }
 
 type ResourcesResponse struct {
-	Resources []*dbmodels.Resource `json:"resources"`
+	Resources []*models.Resource `json:"resources"`
 }
 
 // @Summary Create resource
@@ -48,7 +48,7 @@ func (rs *resourceService) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resource := &ResourceRequest{
-		Resource: &dbmodels.Resource{},
+		Resource: &models.Resource{},
 	}
 
 	if err := render.Bind(r, resource); err != nil {

@@ -11,4 +11,4 @@ generate-proto:
 
 
 api-docs:
-	swag init --output=./web/docs
+	GO111MODULE=off swag init --output=./web/docs --parseDependency

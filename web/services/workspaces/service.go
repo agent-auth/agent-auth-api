@@ -1,8 +1,8 @@
 package workspaces
 
 import (
-	workspaces_dal "github.com/agent-auth/agent-auth-api/dal/workspaces"
-	"github.com/agent-auth/agent-auth-api/pkg/logger"
+	workspaces_dal "github.com/agent-auth/agent-auth-api/db/mongo_dal/workspaces"
+	"github.com/agent-auth/common-lib/pkg/logger"
 	"go.uber.org/zap"
 )
 

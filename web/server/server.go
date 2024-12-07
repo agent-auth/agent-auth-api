@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/agent-auth/agent-auth-api/pkg/logger"
 	"github.com/agent-auth/agent-auth-api/web/router"
+	"github.com/agent-auth/common-lib/pkg/logger"
 	"go.uber.org/zap"
 )
 

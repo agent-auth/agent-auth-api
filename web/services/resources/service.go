@@ -1,9 +1,9 @@
 package resources
 
 import (
-	projects_dal "github.com/agent-auth/agent-auth-api/dal/projects"
-	resources_dal "github.com/agent-auth/agent-auth-api/dal/resources"
-	"github.com/agent-auth/agent-auth-api/pkg/logger"
+	projects_dal "github.com/agent-auth/agent-auth-api/db/mongo_dal/projects"
+	resources_dal "github.com/agent-auth/agent-auth-api/db/mongo_dal/resources"
+	"github.com/agent-auth/common-lib/pkg/logger"
 	"go.uber.org/zap"
 )
 

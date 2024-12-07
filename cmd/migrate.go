@@ -13,7 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 
-	_ "github.com/agent-auth/agent-auth-api/database/migrations" // import migrations
+	_ "github.com/agent-auth/agent-auth-api/db/migrations" // import migrations
 	"github.com/spf13/cobra"
 	migrate "github.com/xakep666/mongo-migrate"
 )

@@ -30,28 +30,16 @@ const docTemplate = `{
                 "summary": "Get health of the service",
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/healthinterface.Health"
-                        }
+                        "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/errorinterface.ErrorResponse"
-                        }
+                        "description": "Bad Request"
                     },
                     "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/errorinterface.ErrorResponse"
-                        }
+                        "description": "Not Found"
                     },
                     "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/errorinterface.ErrorResponse"
-                        }
+                        "description": "Internal Server Error"
                     }
                 }
             }
@@ -1780,216 +1768,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "dbmodels.Action": {
-            "type": "object",
-            "properties": {
-                "action": {
-                    "type": "string"
-                },
-                "actions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dbmodels.Action"
-                    }
-                },
-                "description": {
-                    "type": "string"
-                }
-            }
-        },
-        "dbmodels.AuditLog": {
-            "type": "object",
-            "properties": {
-                "action": {
-                    "description": "Action taken (e.g., \"Created Task\", \"Updated Milestone\")",
-                    "type": "string"
-                },
-                "details": {
-                    "description": "Detailed description of the action",
-                    "type": "string"
-                },
-                "timestamp": {
-                    "description": "When the action was performed",
-                    "type": "string"
-                },
-                "user_id": {
-                    "description": "The user who performed the action",
-                    "type": "string"
-                }
-            }
-        },
-        "dbmodels.Permission": {
-            "type": "object",
-            "properties": {
-                "actions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dbmodels.Action"
-                    }
-                }
-            }
-        },
-        "dbmodels.Project": {
-            "type": "object",
-            "properties": {
-                "audit_logs": {
-                    "description": "Audit logs for project actions",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dbmodels.AuditLog"
-                    }
-                },
-                "created_timestamp_utc": {
-                    "type": "string"
-                },
-                "deleted": {
-                    "description": "Flag to indicate if the project is deleted",
-                    "type": "boolean"
-                },
-                "description": {
-                    "description": "Description of the project",
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "members": {
-                    "description": "List of member IDs associated with the project",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "name": {
-                    "description": "Project details",
-                    "type": "string"
-                },
-                "owner_id": {
-                    "description": "Project owner (user ID)",
-                    "type": "string"
-                },
-                "slug": {
-                    "description": "Slug for unique URL identification",
-                    "type": "string"
-                },
-                "updated_timestamp_utc": {
-                    "type": "string"
-                },
-                "workspace_id": {
-                    "description": "Reference to the workspace it belongs to",
-                    "type": "string"
-                }
-            }
-        },
-        "dbmodels.Resource": {
-            "type": "object",
-            "properties": {
-                "actions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dbmodels.Action"
-                    }
-                },
-                "audit_logs": {
-                    "description": "Audit logs for project actions",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dbmodels.AuditLog"
-                    }
-                },
-                "created_timestamp_utc": {
-                    "type": "string"
-                },
-                "deleted": {
-                    "description": "Flag to indicate if the project is deleted",
-                    "type": "boolean"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "owner_id": {
-                    "description": "Project owner (user ID)",
-                    "type": "string"
-                },
-                "project_id": {
-                    "type": "string"
-                },
-                "type": {
-                    "$ref": "#/definitions/dbmodels.ResourceType"
-                },
-                "updated_timestamp_utc": {
-                    "type": "string"
-                },
-                "urn": {
-                    "type": "string"
-                },
-                "version": {
-                    "type": "string"
-                }
-            }
-        },
-        "dbmodels.ResourceType": {
-            "type": "string",
-            "enum": [
-                "db:mysql",
-                "app:github",
-                "llm:openai"
-            ],
-            "x-enum-varnames": [
-                "ResourceTypeDatabase",
-                "ResourceTypeAPI",
-                "ResourceTypeLLM"
-            ]
-        },
-        "dbmodels.Workspace": {
-            "type": "object",
-            "properties": {
-                "audit_logs": {
-                    "description": "Audit logs for project actions",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dbmodels.AuditLog"
-                    }
-                },
-                "created_timestamp_utc": {
-                    "type": "string"
-                },
-                "deleted": {
-                    "type": "boolean"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
-                },
-                "members": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "name": {
-                    "description": "Workspace details",
-                    "type": "string"
-                },
-                "owner_id": {
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string"
-                },
-                "updated_timestamp_utc": {
-                    "type": "string"
-                }
-            }
-        },
         "errorinterface.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -2004,87 +1782,6 @@ const docTemplate = `{
                 "status": {
                     "description": "user-level status message",
                     "type": "string"
-                }
-            }
-        },
-        "healthinterface.Health": {
-            "type": "object",
-            "properties": {
-                "inboundInterfaces": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/healthinterface.InboundInterface"
-                    }
-                },
-                "outboundInterfaces": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/healthinterface.OutboundInterface"
-                    }
-                },
-                "serviceName": {
-                    "type": "string"
-                },
-                "serviceProvider": {
-                    "type": "string"
-                },
-                "serviceStartTimeUTC": {
-                    "type": "string"
-                },
-                "serviceStatus": {
-                    "type": "string"
-                },
-                "serviceVersion": {
-                    "type": "string"
-                },
-                "timeStampUTC": {
-                    "type": "string"
-                },
-                "uptime": {
-                    "type": "number"
-                }
-            }
-        },
-        "healthinterface.InboundInterface": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "applicationName": {
-                    "type": "string"
-                },
-                "connectionStatus": {
-                    "type": "string"
-                },
-                "hostname": {
-                    "type": "string"
-                },
-                "os": {
-                    "type": "string"
-                },
-                "timeStampUTC": {
-                    "type": "string"
-                }
-            }
-        },
-        "healthinterface.OutboundInterface": {
-            "type": "object",
-            "properties": {
-                "applicationName": {
-                    "type": "string"
-                },
-                "connectionStatus": {
-                    "type": "string"
-                },
-                "timeStampUTC": {
-                    "type": "string"
-                },
-                "urls": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 }
             }
         },
@@ -2184,6 +1881,216 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/keycloak.ResourceRepresentation"
                     }
+                }
+            }
+        },
+        "models.Action": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "actions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Action"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.AuditLog": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "description": "Action taken (e.g., \"Created Task\", \"Updated Milestone\")",
+                    "type": "string"
+                },
+                "details": {
+                    "description": "Detailed description of the action",
+                    "type": "string"
+                },
+                "timestamp": {
+                    "description": "When the action was performed",
+                    "type": "string"
+                },
+                "user_id": {
+                    "description": "The user who performed the action",
+                    "type": "string"
+                }
+            }
+        },
+        "models.Permission": {
+            "type": "object",
+            "properties": {
+                "actions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Action"
+                    }
+                }
+            }
+        },
+        "models.Project": {
+            "type": "object",
+            "properties": {
+                "audit_logs": {
+                    "description": "Audit logs for project actions",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.AuditLog"
+                    }
+                },
+                "created_timestamp_utc": {
+                    "type": "string"
+                },
+                "deleted": {
+                    "description": "Flag to indicate if the project is deleted",
+                    "type": "boolean"
+                },
+                "description": {
+                    "description": "Description of the project",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "members": {
+                    "description": "List of member IDs associated with the project",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "description": "Project details",
+                    "type": "string"
+                },
+                "owner_id": {
+                    "description": "Project owner (user ID)",
+                    "type": "string"
+                },
+                "slug": {
+                    "description": "Slug for unique URL identification",
+                    "type": "string"
+                },
+                "updated_timestamp_utc": {
+                    "type": "string"
+                },
+                "workspace_id": {
+                    "description": "Reference to the workspace it belongs to",
+                    "type": "string"
+                }
+            }
+        },
+        "models.Resource": {
+            "type": "object",
+            "properties": {
+                "actions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Action"
+                    }
+                },
+                "audit_logs": {
+                    "description": "Audit logs for project actions",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.AuditLog"
+                    }
+                },
+                "created_timestamp_utc": {
+                    "type": "string"
+                },
+                "deleted": {
+                    "description": "Flag to indicate if the project is deleted",
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "owner_id": {
+                    "description": "Project owner (user ID)",
+                    "type": "string"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/models.ResourceType"
+                },
+                "updated_timestamp_utc": {
+                    "type": "string"
+                },
+                "urn": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ResourceType": {
+            "type": "string",
+            "enum": [
+                "db:mysql",
+                "app:github",
+                "llm:openai"
+            ],
+            "x-enum-varnames": [
+                "ResourceTypeDatabase",
+                "ResourceTypeAPI",
+                "ResourceTypeLLM"
+            ]
+        },
+        "models.Workspace": {
+            "type": "object",
+            "properties": {
+                "audit_logs": {
+                    "description": "Audit logs for project actions",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.AuditLog"
+                    }
+                },
+                "created_timestamp_utc": {
+                    "type": "string"
+                },
+                "deleted": {
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "members": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "description": "Workspace details",
+                    "type": "string"
+                },
+                "owner_id": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                },
+                "updated_timestamp_utc": {
+                    "type": "string"
                 }
             }
         },
@@ -2296,7 +2203,7 @@ const docTemplate = `{
                     "description": "Audit logs for project actions",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dbmodels.AuditLog"
+                        "$ref": "#/definitions/models.AuditLog"
                     }
                 },
                 "created_timestamp_utc": {
@@ -2348,7 +2255,7 @@ const docTemplate = `{
                     "description": "Audit logs for project actions",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dbmodels.AuditLog"
+                        "$ref": "#/definitions/models.AuditLog"
                     }
                 },
                 "created_timestamp_utc": {
@@ -2399,7 +2306,7 @@ const docTemplate = `{
                 "projects": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dbmodels.Project"
+                        "$ref": "#/definitions/models.Project"
                     }
                 }
             }
@@ -2410,14 +2317,14 @@ const docTemplate = `{
                 "actions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dbmodels.Action"
+                        "$ref": "#/definitions/models.Action"
                     }
                 },
                 "audit_logs": {
                     "description": "Audit logs for project actions",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dbmodels.AuditLog"
+                        "$ref": "#/definitions/models.AuditLog"
                     }
                 },
                 "created_timestamp_utc": {
@@ -2444,7 +2351,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
-                    "$ref": "#/definitions/dbmodels.ResourceType"
+                    "$ref": "#/definitions/models.ResourceType"
                 },
                 "updated_timestamp_utc": {
                     "type": "string"
@@ -2463,14 +2370,14 @@ const docTemplate = `{
                 "actions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dbmodels.Action"
+                        "$ref": "#/definitions/models.Action"
                     }
                 },
                 "audit_logs": {
                     "description": "Audit logs for project actions",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dbmodels.AuditLog"
+                        "$ref": "#/definitions/models.AuditLog"
                     }
                 },
                 "created_timestamp_utc": {
@@ -2497,7 +2404,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "type": {
-                    "$ref": "#/definitions/dbmodels.ResourceType"
+                    "$ref": "#/definitions/models.ResourceType"
                 },
                 "updated_timestamp_utc": {
                     "type": "string"
@@ -2516,7 +2423,7 @@ const docTemplate = `{
                 "resources": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dbmodels.Resource"
+                        "$ref": "#/definitions/models.Resource"
                     }
                 }
             }
@@ -2527,7 +2434,7 @@ const docTemplate = `{
                 "audit_logs": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dbmodels.AuditLog"
+                        "$ref": "#/definitions/models.AuditLog"
                     }
                 },
                 "created_timestamp_utc": {
@@ -2548,7 +2455,7 @@ const docTemplate = `{
                 "permissions": {
                     "type": "object",
                     "additionalProperties": {
-                        "$ref": "#/definitions/dbmodels.Permission"
+                        "$ref": "#/definitions/models.Permission"
                     }
                 },
                 "project_id": {
@@ -2568,7 +2475,7 @@ const docTemplate = `{
                 "audit_logs": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dbmodels.AuditLog"
+                        "$ref": "#/definitions/models.AuditLog"
                     }
                 },
                 "created_timestamp_utc": {
@@ -2589,7 +2496,7 @@ const docTemplate = `{
                 "permissions": {
                     "type": "object",
                     "additionalProperties": {
-                        "$ref": "#/definitions/dbmodels.Permission"
+                        "$ref": "#/definitions/models.Permission"
                     }
                 },
                 "project_id": {
@@ -2609,7 +2516,7 @@ const docTemplate = `{
                 "actions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dbmodels.Action"
+                        "$ref": "#/definitions/models.Action"
                     }
                 },
                 "resource": {
@@ -2633,7 +2540,7 @@ const docTemplate = `{
                     "description": "Audit logs for project actions",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dbmodels.AuditLog"
+                        "$ref": "#/definitions/models.AuditLog"
                     }
                 },
                 "created_timestamp_utc": {
@@ -2677,7 +2584,7 @@ const docTemplate = `{
                     "description": "Audit logs for project actions",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dbmodels.AuditLog"
+                        "$ref": "#/definitions/models.AuditLog"
                     }
                 },
                 "created_timestamp_utc": {
@@ -2720,7 +2627,7 @@ const docTemplate = `{
                 "workspaces": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dbmodels.Workspace"
+                        "$ref": "#/definitions/models.Workspace"
                     }
                 }
             }
