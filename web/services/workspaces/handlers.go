@@ -13,7 +13,7 @@ import (
 	"github.com/agent-auth/common-lib/models"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.uber.org/zap"
 )
 
@@ -56,7 +56,7 @@ type AddMemberRequest struct {
 func (ws *workspaceService) AddMember(w http.ResponseWriter, r *http.Request) {
 	email, _ := authz.GetEmailFromClaims(r)
 
-	workspaceID, err := primitive.ObjectIDFromHex(chi.URLParam(r, "workspace_id"))
+	workspaceID, err := bson.ObjectIDFromHex(chi.URLParam(r, "workspace_id"))
 	if err != nil {
 		ws.logger.Error("invalid workspace ID", zap.Error(err))
 		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
@@ -119,7 +119,7 @@ func (ws *workspaceService) AddMember(w http.ResponseWriter, r *http.Request) {
 func (ws *workspaceService) RemoveMember(w http.ResponseWriter, r *http.Request) {
 	email, _ := authz.GetEmailFromClaims(r)
 
-	workspaceID, err := primitive.ObjectIDFromHex(chi.URLParam(r, "workspace_id"))
+	workspaceID, err := bson.ObjectIDFromHex(chi.URLParam(r, "workspace_id"))
 	if err != nil {
 		ws.logger.Error("invalid workspace ID", zap.Error(err))
 		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
@@ -221,7 +221,7 @@ func (ws *workspaceService) Create(w http.ResponseWriter, r *http.Request) {
 // @Router /workspaces/{workspace_id} [get]
 // @Security BearerAuth
 func (ws *workspaceService) Get(w http.ResponseWriter, r *http.Request) {
-	workspaceID, err := primitive.ObjectIDFromHex(chi.URLParam(r, "workspace_id"))
+	workspaceID, err := bson.ObjectIDFromHex(chi.URLParam(r, "workspace_id"))
 	if err != nil {
 		ws.logger.Error("invalid workspace ID", zap.Error(err))
 		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))
@@ -313,7 +313,7 @@ func (ws *workspaceService) Update(w http.ResponseWriter, r *http.Request) {
 // @Router /workspaces/{workspace_id} [delete]
 // @Security BearerAuth
 func (ws *workspaceService) Delete(w http.ResponseWriter, r *http.Request) {
-	workspaceID, err := primitive.ObjectIDFromHex(chi.URLParam(r, "workspace_id"))
+	workspaceID, err := bson.ObjectIDFromHex(chi.URLParam(r, "workspace_id"))
 	if err != nil {
 		ws.logger.Error("invalid workspace ID", zap.Error(err))
 		render.Render(w, r, renderers.ErrorBadRequest(ErrIncompleteDetails))

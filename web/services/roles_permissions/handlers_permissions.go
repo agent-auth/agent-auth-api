@@ -9,7 +9,7 @@ import (
 	"github.com/agent-auth/agent-auth-api/web/renderers"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.uber.org/zap"
 )
 
@@ -18,6 +18,7 @@ import (
 // @Tags permissions
 // @Accept json
 // @Produce json
+// @Param project_id path string true "Project ID"
 // @Param role_id path string true "Role ID"
 // @Param attribute body UpdatePermissionRequest true "Attribute update details"
 // @Success 204 "No Content"
@@ -34,7 +35,7 @@ func (rp *rolesService) UpdatePermission(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	roleID, err := primitive.ObjectIDFromHex(chi.URLParam(r, "role_id"))
+	roleID, err := bson.ObjectIDFromHex(chi.URLParam(r, "role_id"))
 	if err != nil {
 		msg := "invalid role ID format"
 		rp.logger.Error(msg, zap.Error(err))

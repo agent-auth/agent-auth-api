@@ -6,13 +6,12 @@ import (
 	"time"
 
 	"github.com/agent-auth/common-lib/models"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 // UpdatePermission updates a specific permission attribute using dot notation
-func (p *roles) UpdatePermission(id primitive.ObjectID, resource string, actions []models.Action) error {
+func (p *roles) UpdatePermission(id bson.ObjectID, resource string, actions []models.Action) error {
 	collection := p.db.Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),

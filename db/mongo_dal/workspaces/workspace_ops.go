@@ -9,7 +9,6 @@ import (
 
 	"github.com/agent-auth/agent-auth-api/db/mongodb"
 	"github.com/agent-auth/common-lib/models"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -37,7 +36,7 @@ func NewWorkspaceDal() WorkspaceDal {
 }
 
 // Delete soft deletes a workspace by setting its deleted flag to true
-func (w *workspaces) Delete(id primitive.ObjectID) error {
+func (w *workspaces) Delete(id bson.ObjectID) error {
 	collection := w.db.Collection(w.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -109,7 +108,7 @@ func (w *workspaces) GetBySlug(slug string) (*models.Workspace, error) {
 }
 
 // GetByOwnerID retrieves all workspaces owned by a specific user
-func (w *workspaces) GetByOwnerID(ownerID primitive.ObjectID) ([]*models.Workspace, error) {
+func (w *workspaces) GetByOwnerID(ownerID bson.ObjectID) ([]*models.Workspace, error) {
 	collection := w.db.Collection(w.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -234,13 +233,13 @@ func (w *workspaces) Create(workspace *models.Workspace) (*models.Workspace, err
 	}
 
 	// Set the ID from the insertion result
-	workspace.ID = result.InsertedID.(primitive.ObjectID)
+	workspace.ID = result.InsertedID.(bson.ObjectID)
 
 	return workspace, nil
 }
 
 // GetByID retrieves a workspace by its ID
-func (w *workspaces) GetByID(id primitive.ObjectID) (*models.Workspace, error) {
+func (w *workspaces) GetByID(id bson.ObjectID) (*models.Workspace, error) {
 	collection := w.db.Collection(w.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),

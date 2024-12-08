@@ -9,7 +9,6 @@ import (
 
 	"github.com/agent-auth/agent-auth-api/db/mongodb"
 	"github.com/agent-auth/common-lib/models"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
@@ -53,12 +52,12 @@ func (p *roles) Create(role *models.Roles) (*models.Roles, error) {
 		return nil, fmt.Errorf("failed to create role: %w", err)
 	}
 
-	role.ID = result.InsertedID.(primitive.ObjectID)
+	role.ID = result.InsertedID.(bson.ObjectID)
 	return role, nil
 }
 
 // Delete removes a role record by ID
-func (p *roles) Delete(id primitive.ObjectID) error {
+func (p *roles) Delete(id bson.ObjectID) error {
 	collection := p.db.Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -83,7 +82,7 @@ func (p *roles) Delete(id primitive.ObjectID) error {
 }
 
 // Get retrieves a role by ID
-func (p *roles) Get(id primitive.ObjectID) (*models.Roles, error) {
+func (p *roles) Get(id bson.ObjectID) (*models.Roles, error) {
 	collection := p.db.Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -104,7 +103,7 @@ func (p *roles) Get(id primitive.ObjectID) (*models.Roles, error) {
 }
 
 // DeleteByProjectID removes all roles for a specific project
-func (p *roles) DeleteByProjectID(projectID primitive.ObjectID) error {
+func (p *roles) DeleteByProjectID(projectID bson.ObjectID) error {
 	collection := p.db.Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -129,7 +128,7 @@ func (p *roles) DeleteByProjectID(projectID primitive.ObjectID) error {
 }
 
 // GetByProjectID retrieves all roles for a specific project
-func (p *roles) GetByProjectID(projectID primitive.ObjectID) ([]*models.Roles, error) {
+func (p *roles) GetByProjectID(projectID bson.ObjectID) ([]*models.Roles, error) {
 	collection := p.db.Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -155,7 +154,7 @@ func (p *roles) GetByProjectID(projectID primitive.ObjectID) ([]*models.Roles, e
 }
 
 // GetByProjectIDAndRole retrieves a role by project ID and role
-func (p *roles) GetByProjectIDAndRole(projectID primitive.ObjectID, r string) (*models.Roles, error) {
+func (p *roles) GetByProjectIDAndRole(projectID bson.ObjectID, r string) (*models.Roles, error) {
 	collection := p.db.Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),

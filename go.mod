@@ -3,7 +3,7 @@ module github.com/agent-auth/agent-auth-api
 go 1.22.5
 
 require (
-	github.com/agent-auth/common-lib v0.0.0-20241207060820-bfdef12b7b14
+	github.com/agent-auth/common-lib v0.0.0-20241208030057-eae1dc06fd44
 	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/render v1.0.3
@@ -14,7 +14,6 @@ require (
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/swaggo/swag v1.16.4
 	github.com/xakep666/mongo-migrate v0.4.0
-	go.mongodb.org/mongo-driver v1.17.1
 	go.mongodb.org/mongo-driver/v2 v2.0.0-beta2
 	go.uber.org/zap v1.27.0
 )

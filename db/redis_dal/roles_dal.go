@@ -2,6 +2,7 @@ package redis_dal
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -9,9 +10,9 @@ import (
 
 	"github.com/agent-auth/agent-auth-api/db/mongodb"
 	"github.com/agent-auth/agent-auth-api/db/redisdb"
+	"github.com/agent-auth/common-lib/models"
 	"github.com/agent-auth/common-lib/pkg/logger"
 	"github.com/go-redis/redis/v8"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.uber.org/zap"
@@ -61,63 +62,38 @@ func (r *redis_roles_dal) InitialSync() error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(r.timeoutSeconds)*time.Second)
 	defer cancel()
 
-	cursor, err := r.mongo.Collection(r.collectionName).Find(ctx, bson.M{})
+	var roles []models.Roles
+	cursor, err := r.mongo.Collection(r.collectionName).Find(ctx, bson.M{
+		"Deleted": bson.M{"$ne": true},
+	})
 	if err != nil {
 		return fmt.Errorf("failed to fetch initial data: %v", err)
 	}
 	defer cursor.Close(ctx)
 
-	var syncErrors []error
+	// Collect all roles
 	for cursor.Next(ctx) {
-		var doc bson.M
-		if err := cursor.Decode(&doc); err != nil {
+		var role models.Roles
+		if err := cursor.Decode(&role); err != nil {
 			r.logger.Error("Failed to decode document during initial sync", zap.Error(err))
-			syncErrors = append(syncErrors, err)
 			continue
 		}
-
-		objectID, ok := doc["_id"].(primitive.ObjectID)
-		if !ok {
-			r.logger.Error("Document _id is not an ObjectID")
-			continue
-		}
-		docID := objectID.Hex()
-
-		// Convert BSON to JSON instead of using bson.Marshal
-		docJSON, err := bson.MarshalExtJSON(doc, true, true)
-		if err != nil {
-			r.logger.Error("Failed to marshal document to JSON during initial sync", zap.Error(err))
-			syncErrors = append(syncErrors, err)
-			continue
-		}
-
-		r.logger.Info("Storing document in Redis during initial sync", zap.String("collection", r.collectionName), zap.String("id", docID))
-
-		err = r.redis.Set(context.Background(), fmt.Sprintf("%s:%s", r.collectionName, docID), docJSON, 0).Err()
-		if err != nil {
-			r.logger.Error("Failed to store document in Redis during initial sync", zap.Error(err))
-			syncErrors = append(syncErrors, err)
-		}
+		roles = append(roles, role)
 	}
 
-	// Check for cursor iteration errors
-	if err := cursor.Err(); err != nil {
-		return fmt.Errorf("cursor iteration error: %v", err)
-	}
-
-	if len(syncErrors) > 0 {
-		return fmt.Errorf("encountered %d errors during sync", len(syncErrors))
+	projectRoles := r.transformRolesToProjectMap(roles)
+	if err := r.storeProjectRolesInRedis(ctx, projectRoles); err != nil {
+		return fmt.Errorf("failed to store roles in Redis: %v", err)
 	}
 
 	r.logger.Info("Initial redis sync completed successfully")
-
 	return nil
 }
 
 func (r *redis_roles_dal) SyncRolesCollection(ctx context.Context) {
 	if err := r.InitialSync(); err != nil {
 		r.logger.Error("Failed to perform initial sync", zap.Error(err))
-		return // Consider if you want to continue after initial sync failure
+		return
 	}
 
 	ticker := time.NewTicker(time.Duration(r.syncInterval) * time.Second)
@@ -132,11 +108,13 @@ func (r *redis_roles_dal) SyncRolesCollection(ctx context.Context) {
 			return
 		case <-ticker.C:
 			syncCtx, cancel := context.WithTimeout(ctx, time.Duration(r.timeoutSeconds)*time.Second)
-
+			// Query for updated roles
 			filter := bson.M{
 				"UpdatedTimestampUTC": bson.M{"$gt": lastSync},
+				"Deleted":             bson.M{"$ne": true},
 			}
 
+			var roles []models.Roles
 			cursor, err := r.mongo.Collection(r.collectionName).Find(syncCtx, filter)
 			if err != nil {
 				r.logger.Error("Failed to poll for changes", zap.Error(err))
@@ -144,43 +122,83 @@ func (r *redis_roles_dal) SyncRolesCollection(ctx context.Context) {
 				continue
 			}
 
-			// Process documents
+			// Collect all roles
 			for cursor.Next(syncCtx) {
-				var doc bson.M
-				if err := cursor.Decode(&doc); err != nil {
+				var role models.Roles
+				if err := cursor.Decode(&role); err != nil {
 					r.logger.Error("Failed to decode document during polling", zap.Error(err))
 					continue
 				}
-
-				objectID, ok := doc["_id"].(primitive.ObjectID)
-				if !ok {
-					r.logger.Error("Document _id is not an ObjectID")
-					continue
-				}
-				docID := objectID.Hex()
-
-				docJSON, err := bson.MarshalExtJSON(doc, true, true)
-				if err != nil {
-					r.logger.Error("Failed to marshal document to JSON during polling", zap.Error(err))
-					continue
-				}
-
-				r.logger.Info("Storing document in Redis during polling", zap.String("collection", r.collectionName), zap.String("id", docID))
-
-				err = r.redis.Set(syncCtx, fmt.Sprintf("%s:%s", r.collectionName, docID), docJSON, 0).Err()
-				if err != nil {
-					r.logger.Error("Failed to store document in Redis during polling", zap.Error(err))
-				}
+				roles = append(roles, role)
 			}
-
-			// Check for cursor errors
-			if err := cursor.Err(); err != nil {
-				r.logger.Error("Cursor iteration error", zap.Error(err))
-			}
-
 			cursor.Close(syncCtx)
+
+			projectRoles := r.transformRolesToProjectMap(roles)
+			if err := r.storeProjectRolesInRedis(syncCtx, projectRoles); err != nil {
+				r.logger.Error("Failed to store roles in Redis", zap.Error(err))
+			} else {
+				lastSync = time.Now().UTC()
+			}
+
 			cancel()
-			lastSync = time.Now().UTC()
+
+			r.logger.Info("Roles collection sync completed successfully, looking for more changes")
 		}
 	}
+}
+
+// New helper function to handle the transformation
+func (r *redis_roles_dal) transformRolesToProjectMap(roles []models.Roles) map[string]map[string]map[string]models.Permission {
+	projectRoles := make(map[string]map[string]map[string]models.Permission)
+
+	for _, role := range roles {
+		projectID := role.ProjectID.Hex()
+
+		// Initialize project map if it doesn't exist
+		if _, exists := projectRoles[projectID]; !exists {
+			projectRoles[projectID] = make(map[string]map[string]models.Permission)
+		}
+
+		// Initialize role map if it doesn't exist
+		if _, exists := projectRoles[projectID][role.Role]; !exists {
+			projectRoles[projectID][role.Role] = make(map[string]models.Permission)
+		}
+
+		// Add permissions to the role
+		for urn, permission := range role.Permissions {
+			projectRoles[projectID][role.Role][urn] = permission
+		}
+	}
+
+	return projectRoles
+}
+
+// Helper function to store transformed data in Redis
+func (r *redis_roles_dal) storeProjectRolesInRedis(ctx context.Context, projectRoles map[string]map[string]map[string]models.Permission) error {
+	for projectID, roleData := range projectRoles {
+		transformedData := struct {
+			ProjectID   string                                  `json:"project_id"`
+			Permissions map[string]map[string]models.Permission `json:"permissions"`
+		}{
+			ProjectID:   projectID,
+			Permissions: roleData,
+		}
+
+		jsonData, err := json.Marshal(transformedData)
+		if err != nil {
+			r.logger.Error("Failed to marshal transformed data", zap.Error(err))
+			return err
+		}
+
+		r.logger.Info("Storing transformed data in Redis", zap.String("projectID", fmt.Sprintf("roles:%s", projectID)))
+
+		err = r.redis.Set(ctx, fmt.Sprintf("roles:%s", projectID), jsonData, 0).Err()
+		if err != nil {
+			r.logger.Error("Failed to store transformed data in Redis",
+				zap.String("projectID", projectID),
+				zap.Error(err))
+			return err
+		}
+	}
+	return nil
 }

@@ -9,7 +9,6 @@ import (
 
 	"github.com/agent-auth/agent-auth-api/db/mongodb"
 	"github.com/agent-auth/common-lib/models"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -63,7 +62,7 @@ func (p *projects) Create(project *models.Project) (*models.Project, error) {
 		return nil, fmt.Errorf("failed to create project: %w", err)
 	}
 
-	project.ID = result.InsertedID.(primitive.ObjectID)
+	project.ID = result.InsertedID.(bson.ObjectID)
 	return project, nil
 }
 
@@ -145,7 +144,7 @@ func (p *projects) List(email string, skip, limit int64) ([]*models.Project, err
 }
 
 // GetByID retrieves a project by its ID
-func (p *projects) GetByID(id primitive.ObjectID) (*models.Project, error) {
+func (p *projects) GetByID(id bson.ObjectID) (*models.Project, error) {
 	collection := p.db.Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -167,7 +166,7 @@ func (p *projects) GetByID(id primitive.ObjectID) (*models.Project, error) {
 }
 
 // Delete soft-deletes a project by ID
-func (p *projects) Delete(id primitive.ObjectID) error {
+func (p *projects) Delete(id bson.ObjectID) error {
 	collection := p.db.Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -194,7 +193,7 @@ func (p *projects) Delete(id primitive.ObjectID) error {
 }
 
 // GetBySlug retrieves a project by its slug within a workspace
-func (p *projects) GetBySlug(workspaceID primitive.ObjectID, slug string) (*models.Project, error) {
+func (p *projects) GetBySlug(workspaceID bson.ObjectID, slug string) (*models.Project, error) {
 	collection := p.db.Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -241,7 +240,7 @@ func (p *projects) GetByOwnerID(ownerID string) ([]*models.Project, error) {
 }
 
 // AddMember adds a member to a project
-func (p *projects) AddMember(projectID primitive.ObjectID, email string) error {
+func (p *projects) AddMember(projectID bson.ObjectID, email string) error {
 	if projectID.IsZero() {
 		return fmt.Errorf("project ID cannot be empty")
 	}
@@ -271,7 +270,7 @@ func (p *projects) AddMember(projectID primitive.ObjectID, email string) error {
 }
 
 // RemoveMember removes a member from a project
-func (p *projects) RemoveMember(projectID primitive.ObjectID, email string) error {
+func (p *projects) RemoveMember(projectID bson.ObjectID, email string) error {
 	collection := p.db.Collection(p.collectionName)
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
@@ -298,7 +297,7 @@ func (p *projects) RemoveMember(projectID primitive.ObjectID, email string) erro
 }
 
 // IsMember checks if the given email is a member of the specified project
-func (p *projects) IsMember(projectID primitive.ObjectID, email string) (bool, error) {
+func (p *projects) IsMember(projectID bson.ObjectID, email string) (bool, error) {
 	if projectID.IsZero() {
 		return false, fmt.Errorf("project ID cannot be empty")
 	}

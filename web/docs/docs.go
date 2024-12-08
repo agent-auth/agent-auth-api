@@ -9,7 +9,15 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "contact": {
+            "name": "API Support",
+            "url": "http://xyz.ai",
+            "email": "hello@xyz.ai"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -63,13 +71,6 @@ const docTemplate = `{
                 ],
                 "summary": "List projects",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Workspace ID",
-                        "name": "workspace_id",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "default": 0,
@@ -471,7 +472,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/resources.ResourcesResponse"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Resource"
+                            }
                         }
                     },
                     "400": {
@@ -512,6 +516,13 @@ const docTemplate = `{
                 ],
                 "summary": "Create resource",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "Resource details",
                         "name": "resource",
@@ -571,6 +582,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Resource ID",
                         "name": "resource_id",
                         "in": "path",
@@ -622,6 +640,13 @@ const docTemplate = `{
                 ],
                 "summary": "Update resource",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Resource ID",
@@ -690,6 +715,13 @@ const docTemplate = `{
                 ],
                 "summary": "Delete resource",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Resource ID",
@@ -1007,6 +1039,13 @@ const docTemplate = `{
                 ],
                 "summary": "Update permission attribute",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Role ID",
@@ -1545,6 +1584,20 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Workspace ID",
+                        "name": "workspace_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Bearer JWT",
                         "name": "Authorization",
                         "in": "header",
@@ -2042,13 +2095,19 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "db:mysql",
-                "app:github",
-                "llm:openai"
+                "oauth:github",
+                "llm:openai",
+                "app:agent",
+                "app:task",
+                "app:tool"
             ],
             "x-enum-varnames": [
                 "ResourceTypeDatabase",
-                "ResourceTypeAPI",
-                "ResourceTypeLLM"
+                "ResourceTypeGithub",
+                "ResourceTypeLLM",
+                "ResourceTypeAgent",
+                "ResourceTypeTask",
+                "ResourceTypeTool"
             ]
         },
         "models.Workspace": {
@@ -2417,17 +2476,6 @@ const docTemplate = `{
                 }
             }
         },
-        "resources.ResourcesResponse": {
-            "type": "object",
-            "properties": {
-                "resources": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Resource"
-                    }
-                }
-            }
-        },
         "roles_permissions.RoleRequest": {
             "type": "object",
             "properties": {
@@ -2634,25 +2682,25 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
-        "ApiKeyAuth": {
+        "BasicAuth": {
+            "type": "basic"
+        },
+        "BearerAuth": {
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"
-        },
-        "BasicAuth": {
-            "type": "basic"
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
+	Version:          "2.0",
 	Host:             "localhost:8002",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Agent Auth API Documentation",
+	Description:      "Agent Auth API Documentation",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

@@ -186,13 +186,19 @@ definitions:
   models.ResourceType:
     enum:
     - db:mysql
-    - app:github
+    - oauth:github
     - llm:openai
+    - app:agent
+    - app:task
+    - app:tool
     type: string
     x-enum-varnames:
     - ResourceTypeDatabase
-    - ResourceTypeAPI
+    - ResourceTypeGithub
     - ResourceTypeLLM
+    - ResourceTypeAgent
+    - ResourceTypeTask
+    - ResourceTypeTool
   models.Workspace:
     properties:
       audit_logs:
@@ -442,13 +448,6 @@ definitions:
       version:
         type: string
     type: object
-  resources.ResourcesResponse:
-    properties:
-      resources:
-        items:
-          $ref: '#/definitions/models.Resource'
-        type: array
-    type: object
   roles_permissions.RoleRequest:
     properties:
       audit_logs:
@@ -587,7 +586,16 @@ definitions:
     type: object
 host: localhost:8002
 info:
-  contact: {}
+  contact:
+    email: hello@xyz.ai
+    name: API Support
+    url: http://xyz.ai
+  description: Agent Auth API Documentation
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Agent Auth API Documentation
+  version: "2.0"
 paths:
   /{workspace_id}/{project_id}/oauth/{resource_id}:
     put:
@@ -695,6 +703,16 @@ paths:
       - application/json
       description: Creates a new Keycloak resource
       parameters:
+      - description: Workspace ID
+        in: path
+        name: workspace_id
+        required: true
+        type: string
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
       - description: Bearer JWT
         in: header
         name: Authorization
@@ -824,11 +842,6 @@ paths:
       - application/json
       description: Lists all projects for a workspace with pagination
       parameters:
-      - description: Workspace ID
-        in: path
-        name: workspace_id
-        required: true
-        type: string
       - default: 0
         description: Number of records to skip
         in: query
@@ -1089,7 +1102,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/resources.ResourcesResponse'
+            items:
+              $ref: '#/definitions/models.Resource'
+            type: array
         "400":
           description: Bad Request
           schema:
@@ -1112,6 +1127,11 @@ paths:
       - application/json
       description: Creates a new resource
       parameters:
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
       - description: Resource details
         in: body
         name: resource
@@ -1148,6 +1168,11 @@ paths:
       - application/json
       description: Deletes a resource
       parameters:
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
       - description: Resource ID
         in: path
         name: resource_id
@@ -1184,6 +1209,11 @@ paths:
       - application/json
       description: Gets a resource by ID
       parameters:
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
       - description: Resource ID
         in: path
         name: resource_id
@@ -1218,6 +1248,11 @@ paths:
       - application/json
       description: Updates an existing resource
       parameters:
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
       - description: Resource ID
         in: path
         name: resource_id
@@ -1429,6 +1464,11 @@ paths:
       - application/json
       description: Updates a specific attribute of a permission
       parameters:
+      - description: Project ID
+        in: path
+        name: project_id
+        required: true
+        type: string
       - description: Role ID
         in: path
         name: role_id
@@ -1722,10 +1762,10 @@ paths:
       tags:
       - workspaces
 securityDefinitions:
-  ApiKeyAuth:
+  BasicAuth:
+    type: basic
+  BearerAuth:
     in: header
     name: Authorization
     type: apiKey
-  BasicAuth:
-    type: basic
 swagger: "2.0"

@@ -9,7 +9,6 @@ import (
 
 	"github.com/agent-auth/agent-auth-api/db/mongodb"
 	"github.com/agent-auth/common-lib/models"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
@@ -58,7 +57,7 @@ func (r *resources) Create(resource *models.Resource) (*models.Resource, error) 
 		return nil, fmt.Errorf("failed to create resource: %w", err)
 	}
 
-	resource.ID = result.InsertedID.(primitive.ObjectID)
+	resource.ID = result.InsertedID.(bson.ObjectID)
 	return resource, nil
 }
 
@@ -105,7 +104,7 @@ func (r *resources) Update(resource *models.Resource) error {
 }
 
 // GetByID retrieves a resource by its ID
-func (r *resources) GetByID(id primitive.ObjectID) (*models.Resource, error) {
+func (r *resources) GetByID(id bson.ObjectID) (*models.Resource, error) {
 	if id.IsZero() {
 		return nil, fmt.Errorf("invalid resource ID")
 	}
@@ -130,7 +129,7 @@ func (r *resources) GetByID(id primitive.ObjectID) (*models.Resource, error) {
 }
 
 // Delete soft-deletes a resource by ID
-func (r *resources) Delete(id primitive.ObjectID) error {
+func (r *resources) Delete(id bson.ObjectID) error {
 	if id.IsZero() {
 		return fmt.Errorf("invalid resource ID")
 	}
@@ -167,7 +166,7 @@ func (r *resources) Delete(id primitive.ObjectID) error {
 }
 
 // GetByProjectID retrieves all non-deleted resources for a given project ID
-func (r *resources) GetByProjectID(projectID primitive.ObjectID) ([]*models.Resource, error) {
+func (r *resources) GetByProjectID(projectID bson.ObjectID) ([]*models.Resource, error) {
 	if projectID.IsZero() {
 		return nil, fmt.Errorf("invalid project ID")
 	}
@@ -198,7 +197,7 @@ func (r *resources) GetByProjectID(projectID primitive.ObjectID) ([]*models.Reso
 }
 
 // GetByURNAndProjectID retrieves a resource by URN and project ID
-func (r *resources) GetByURNAndProjectID(urn string, projectID primitive.ObjectID) (*models.Resource, error) {
+func (r *resources) GetByURNAndProjectID(urn string, projectID bson.ObjectID) (*models.Resource, error) {
 	if projectID.IsZero() {
 		return nil, fmt.Errorf("invalid project ID")
 	}

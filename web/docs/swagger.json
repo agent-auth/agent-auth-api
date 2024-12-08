@@ -1,7 +1,18 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "Agent Auth API Documentation",
+        "title": "Agent Auth API Documentation",
+        "contact": {
+            "name": "API Support",
+            "url": "http://xyz.ai",
+            "email": "hello@xyz.ai"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "2.0"
     },
     "host": "localhost:8002",
     "basePath": "/",
@@ -54,13 +65,6 @@
                 ],
                 "summary": "List projects",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Workspace ID",
-                        "name": "workspace_id",
-                        "in": "path",
-                        "required": true
-                    },
                     {
                         "type": "integer",
                         "default": 0,
@@ -462,7 +466,10 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/resources.ResourcesResponse"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Resource"
+                            }
                         }
                     },
                     "400": {
@@ -503,6 +510,13 @@
                 ],
                 "summary": "Create resource",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "Resource details",
                         "name": "resource",
@@ -562,6 +576,13 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Resource ID",
                         "name": "resource_id",
                         "in": "path",
@@ -613,6 +634,13 @@
                 ],
                 "summary": "Update resource",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Resource ID",
@@ -681,6 +709,13 @@
                 ],
                 "summary": "Delete resource",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Resource ID",
@@ -998,6 +1033,13 @@
                 ],
                 "summary": "Update permission attribute",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Role ID",
@@ -1536,6 +1578,20 @@
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Workspace ID",
+                        "name": "workspace_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Bearer JWT",
                         "name": "Authorization",
                         "in": "header",
@@ -2033,13 +2089,19 @@
             "type": "string",
             "enum": [
                 "db:mysql",
-                "app:github",
-                "llm:openai"
+                "oauth:github",
+                "llm:openai",
+                "app:agent",
+                "app:task",
+                "app:tool"
             ],
             "x-enum-varnames": [
                 "ResourceTypeDatabase",
-                "ResourceTypeAPI",
-                "ResourceTypeLLM"
+                "ResourceTypeGithub",
+                "ResourceTypeLLM",
+                "ResourceTypeAgent",
+                "ResourceTypeTask",
+                "ResourceTypeTool"
             ]
         },
         "models.Workspace": {
@@ -2408,17 +2470,6 @@
                 }
             }
         },
-        "resources.ResourcesResponse": {
-            "type": "object",
-            "properties": {
-                "resources": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.Resource"
-                    }
-                }
-            }
-        },
         "roles_permissions.RoleRequest": {
             "type": "object",
             "properties": {
@@ -2625,13 +2676,13 @@
         }
     },
     "securityDefinitions": {
-        "ApiKeyAuth": {
+        "BasicAuth": {
+            "type": "basic"
+        },
+        "BearerAuth": {
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"
-        },
-        "BasicAuth": {
-            "type": "basic"
         }
     }
 }
