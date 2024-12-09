@@ -8,6 +8,10 @@ github.com/agent-auth/common-lib v0.0.0-20241208025158-67ef9d4c322a h1:MuLF8jHXV
 github.com/agent-auth/common-lib v0.0.0-20241208025158-67ef9d4c322a/go.mod h1:ZZP+YTGtwicissa48XTulWStZZOLx4JYJgbK+TUvFlU=
 github.com/agent-auth/common-lib v0.0.0-20241208030057-eae1dc06fd44 h1:WMLN0cxLovXfJNnUjkYxYhNyOXD8QoWzPhHzKA4FsnU=
 github.com/agent-auth/common-lib v0.0.0-20241208030057-eae1dc06fd44/go.mod h1:ZZP+YTGtwicissa48XTulWStZZOLx4JYJgbK+TUvFlU=
+github.com/agent-auth/common-lib v0.0.0-20241209095350-a0d00671f62e h1:aul5cdvvU90Ir8M449bfruHVxcVgXe9eFx2z5vcjdVk=
+github.com/agent-auth/common-lib v0.0.0-20241209095350-a0d00671f62e/go.mod h1:ZZP+YTGtwicissa48XTulWStZZOLx4JYJgbK+TUvFlU=
+github.com/agent-auth/common-lib v0.0.0-20241209095607-fb465050d209 h1:KrdFohQhuY5LRjyirSqaIs4niY849vl6wnbkDetDun8=
+github.com/agent-auth/common-lib v0.0.0-20241209095607-fb465050d209/go.mod h1:ZZP+YTGtwicissa48XTulWStZZOLx4JYJgbK+TUvFlU=
 github.com/ajg/form v1.5.1 h1:t9c7v8JUKu/XxOGBU0yjNpaMloxGEJhUkqFRq0ibGeU=
 github.com/ajg/form v1.5.1/go.mod h1:uL1WgH+h2mgNtvBq0339dVnzXdBETtL2LeUXaIv25UY=
 github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 h1:DklsrG3dyBCFEj5IhUbnKptjxatkF07cF2ak3yi77so=

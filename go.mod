@@ -3,7 +3,7 @@ module github.com/agent-auth/agent-auth-api
 go 1.22.5
 
 require (
-	github.com/agent-auth/common-lib v0.0.0-20241208030057-eae1dc06fd44
+	github.com/agent-auth/common-lib v0.0.0-20241209095607-fb465050d209
 	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/render v1.0.3
